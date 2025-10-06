@@ -1,5 +1,0 @@
-<?php
-makeFooter();
-closeBody();
-closeHTML();
-?>
