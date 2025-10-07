@@ -1,6 +1,4 @@
 <?php
-$formFields = $response[$response['page']];
-
 if ($response['validated']) {
     showTitle($response['message'], 'title');
 } else {
@@ -8,13 +6,13 @@ if ($response['validated']) {
             ? 'Een of meerdere velden zijn leeg'
             : 'Vul gegevens onderin aan om te registeren');
 
-    showForm(
-        'myForm',
-        $msg,
-        $formFields,
-        $response['page'],
-        $_POST ?? [],
-        $response['empty'] ?? []
-    );
+    showForm([
+        'class'       => 'myForm',
+        'formTitle'   => $msg,
+        'fields'      => $response[$response['page']],
+        'action'      => $response['page'],
+        'post'        => $_POST ?? [],
+        'emptyFields' => $result['empty'] ?? []
+    ]);
 }
 ?>

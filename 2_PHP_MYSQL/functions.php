@@ -7,59 +7,54 @@ function openHTML(): void {
 //Makes the head part of the HTML document
 //$path is a string to the path of the CSS-file
 //$title is a string that is the title of the page
-function makeHead($path, $title): void {
-    echo '<head>';
+function makeHead(string $path,string $title): void {
 
     if (!file_exists($path)) {
         echo "CSS File niet gevonden";
         exit;
     }
 
-    echo '<link rel="stylesheet" href="'. $path . '">';
-    echo '<title>'. $title . '</title>';
-    echo '</head>';
+    echo '<head><link rel="stylesheet" href="'. $path . '"><title>'. $title . '</title></head>';
 }
 
 //Open body
 function openBody(): void {
-    echo '<body>';
+    echo '<body><div class="content">';
 }
 
 //Show title
 //$title is the title that you want to show on the page
 //$class is the style-class you want to use for the title
-function showTitle($title, $class): void {
+function showTitle(string $title,string $class): void {
     echo '<h1 class="'. $class . '">' . $title . '</h1>';
 }
 
 //Show list of options
 //$class is the style-class you want to use for the list
 //$options is an array of strings that are the options
-function showListOfOptions($class, $options): void {
+function showListOfOptions(string $class,array $options): void {
     echo '<ul class="'. $class . '">';
 
     foreach ($options as $option) {
 
         $builder = '<li><a href="index.php?page='. strtolower($option) .'">' . $option;
 
-        if(isset($_SESSION['logged_in']) && !strcmp('LOGOUT',$option))  $builder .= ' ' . $_SESSION['username'];
-
-        $builder .= '</a></li>';
-        echo $builder;
+        if (!empty($_SESSION['logged_in']) && $option === 'LOGOUT') $builder .= ' ' . htmlspecialchars($_SESSION['username'], ENT_QUOTES);
+        echo $builder.= '</a></li>';
     }
     echo '</ul>';
 }
 
 //Show message
 //$message is the message you want to present in the body
-function showMessage($message): void {
+function showMessage(string $message): void {
     echo '<p>' . $message . '</p>';
 }
 
 //Validate input of form by checking if they are empty
 //Option to show the input if $showInput is true
 //return true if all fields are filled else return false
-function inputValidationForm($post) : array {
+function inputValidationForm(array $post) : array {
     $empty = [];
 
     foreach ($post as $key => $value) {
@@ -75,7 +70,15 @@ function inputValidationForm($post) : array {
 //$class is the class-style used for the form
 //$formTitle is the title of the 
 //$fiels is an array of strings that are the forms
-function showForm($class,$formTitle,$fields,$action,$post = [],$emptyFields = []): void {
+//function showForm(string $class, string $formTitle, array $fields, string $action, array $post = [], array $emptyFields = []): void {
+function showForm(array $config): void {
+    $class       = $config['class'];
+    $formTitle   = $config['formTitle'];
+    $fields      = $config['fields'];
+    $action      = $config['action'];
+    $post        = $config['post'];
+    $emptyFields = $config['emptyFields'];
+
     echo '<form class="' . $class . '" method="post" action="index.php">';
     echo '<legend><h2>' . $formTitle . ':</h2></legend>';
     echo '<input type="hidden" name="page" value="' . $action . '">';
@@ -83,7 +86,7 @@ function showForm($class,$formTitle,$fields,$action,$post = [],$emptyFields = []
     foreach ($fields as $field) {
         $cleanedField = slugify($field);
 
-        $info = $post[$cleanedField] ?? '';
+        $info = htmlspecialchars(isset($post[$cleanedField]) ? $post[$cleanedField] : '',  ENT_QUOTES);
         $isEmpty = in_array($cleanedField, $emptyFields);
 
         echo '<label for="' . $cleanedField . '">' . $field . ':</label>';
@@ -107,7 +110,7 @@ function showForm($class,$formTitle,$fields,$action,$post = [],$emptyFields = []
 
 //Close body
 function closeBody(): void {
-    echo '</body>';
+    echo '</div></body>';
 }
 
 //Make the footer of the page
@@ -141,7 +144,7 @@ function getRequestVar(string $key, bool $frompost, $default="", bool $asnumber=
 }   
 
 //Helper function te remove illegal characters in a string when using it as name and id
-function slugify($text) {
+function slugify(string $text): string {
     $text = strtolower(trim($text));
     $text = str_replace([' ', '-', '_'], '', $text);
     $text = preg_replace('/[^a-z0-9]/', '', $text);
@@ -149,47 +152,50 @@ function slugify($text) {
 }
 
 //Function to validate the request received by the server
-function validateRequest(array $request) : array
-{
-    $result = $request;
-
+function validateRequest(array $request) : array {
     //Initialize keys to process request
-    $result['message'] = '';
-    $result['validated'] = false;
-    $result['empty'] = [];
+    $result = [
+        ...$request,
+        'message' => '',
+        'validated' => false,
+        'empty' => [],
+    ];
 
     //POST
-    if ($request['posted'])
-    {
+    if ($request['posted']) {
         $result['empty'] = inputValidationForm($_POST);
+        $_POST['email'] = strtolower(trim($_POST['email']));
 
-        if(empty($result['empty'])) {
-            switch ($request['page'])
-            {
-                case 'login':
-                    $conn = connectDataBase($request['userDatabase']);
+        if (!empty($result['empty'])) {
+            return $result;
+        }
 
+        switch ($request['page']) {
+            case 'login':
+            case 'register':
+                $conn = connectDataBase($request['userDatabase']);
+                
+                if (!$conn) {
+                    $result['message'] = "Connection failed: " . mysqli_connect_error();
+                    return $result;
+                }
+
+                if ($request['page'] === 'login') {
                     $result['message'] = handleLogin($conn, $_POST);
-
-                    mysqli_close($conn);
-                    break;
-                case 'register':
-                    $conn = connectDataBase($request['userDatabase']);
-
+                } else {
                     $result = array_merge($result, handleRegister($conn, $_POST));
-                    
-                    mysqli_close($conn);
-                    break;
-                default:
-                    $result['validated'] = true;
-            }
+                }
+
+                mysqli_close($conn);
+                break;
+            default:
+                $result['validated'] = true;
         }
     //GET where the request needs to be validated
     } else {
-        switch ($request['page'])
-        {
+        switch ($request['page']) {
             case 'logout':
-                if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+                if (!empty($_SESSION['logged_in'])) {
                     session_unset();
                     session_destroy();
                     unset($result['menu']['LOGOUT']);
@@ -205,7 +211,7 @@ function validateRequest(array $request) : array
     if (!in_array($result['page'],array_map('strtolower', $result['menu']))) $result['page'] = 'home';
 
     //Remove LOGIN and REGISTER if user logged in
-    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    if (!empty($_SESSION['logged_in'])) {
         $result['menu'] = array_diff($request['menu'], ['LOGIN', 'REGISTER']);
         $result['menu'][] = 'LOGOUT';
     }
@@ -214,16 +220,13 @@ function validateRequest(array $request) : array
 } 
 
 //Function to include files that build the page
-function showResponse(array $response)
-{
+function showResponse(array $response) : void {
     include 'header.php';
     include 'pages/' . $response['page'] . '.php';
     include 'footer.php';
 } 
 
-
-
-
+//Connect to database
 function connectDataBase(array $dataBase) {
     $conn = mysqli_connect(
         $dataBase['servername'],
@@ -232,13 +235,10 @@ function connectDataBase(array $dataBase) {
         $dataBase['dbName']
     );
 
-    if (!$conn) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-
     return $conn;
 }
 
+//Check whether given email exists in database
 function checkEmail(mysqli $conn, string $email): array {
 
     $sql  = "SELECT id, name, email, password 
@@ -249,11 +249,20 @@ function checkEmail(mysqli $conn, string $email): array {
     $stmt = mysqli_prepare($conn, $sql);
 
     if (!$stmt) {
-        return [null, false];
+        return [null, false, 'Error in statement: ' . mysqli_error($conn)];
     }
 
-    mysqli_stmt_bind_param($stmt, "s", $email);
-    mysqli_stmt_execute($stmt);
+    if (!mysqli_stmt_bind_param($stmt, "s", $email)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+        return [null, false, "Error in binding: " . $error];
+    }
+
+    if (!mysqli_stmt_execute($stmt)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+        return [null, false, "Error in execution: " . $error];
+    }
 
     $result = mysqli_stmt_get_result($stmt);
     $row = mysqli_fetch_assoc($result);
@@ -261,96 +270,113 @@ function checkEmail(mysqli $conn, string $email): array {
     mysqli_stmt_close($stmt);
 
     if ($row) {
-        return [$row, true];
+        return [$row, true, ''];
     } else {
-        return [null, false];
+        return [null, false, ''];
     }
 }
 
-
 //Handle the input of the login
-//$path is the path to the user file
+//$conn is the connection to the user database
 //returns a message regarding how the login was handled
-function handleLogin($path,$post) : string {
-    $foundEmail = checkEmail(readUserFile($path),$post['email']);
+function handleLogin(mysqli $conn,array $post) : string {
+    $foundEmail = checkEmail($conn,$post['email']);
 
     if(!$foundEmail[1]) {
-        return 'E-mail niet gevonden';
+        return $foundEmail[2] ?: 'E-mail niet gevonden';
     }
 
     $row = $foundEmail[0];
-    if (isset($row[1]) && isset($row[2])) {
-        $actualPassword = $row[2];
-
-        if ($actualPassword === $post['wachtwoord']) {
-            $_SESSION['username'] = $row[1];
-            $_SESSION['logged_in'] = true;
-            return 'Login succesvol';
-        } else {
-            return 'Incorrecte wachtwoord';
-        }
+    if (empty($row['name']) || empty($row['password'])) {
+        return 'Fout in database, lege waardes';
     }
-    return 'Fout in array';
+
+    if (!password_verify($post['wachtwoord'], $row['password'])) {
+        return 'Incorrect wachtwoord';
+    }
+
+    $_SESSION['username'] = $row['name'];
+    $_SESSION['logged_in'] = true;
+    return 'Login succesvol';
 }
 
 //Handles the input from register
-//$path is the path to the users file
+//$conn is the connection to the user database
 //Returns whether register was successful as a boolean and also a message that contains an error message or success message
-function handleRegister($path,$post): array {
-    $results = [
-        'message' => '',
-        'validated' => false
+function handleRegister(mysqli $conn,array $post): array {  
+    $result = [
+        'validated' => false, 
+        'message' =>  ''
     ];
 
-    if(checkEmail(readUserFile($path),$post['email'])[1]) {
-        $results['message'] = 'E-mail is al geregisteerd';
-        return $results;
+    $foundEmail = checkEmail($conn,$post['email']);
+
+    if(!empty($foundEmail[2])) {
+        $result['message'] = $foundEmail[2];
+        return $result;
     }
 
-    if(!strcmp($post['wachtwoord'],$post['herhaalwachtwoord'])) {
-        $toSave = $post;
-        unset($toSave['herhaalwachtwoord'], $toSave['page']);
-
-        $email = $toSave['email'];
-        $name  = $toSave['naam'];
-        unset($toSave['email'], $toSave['naam']);
-        $toSave = array_merge(['email' => $email, 'naam' => $name], $toSave);
-
-        appendFile($path,$toSave);
-        $results['message'] = 'Succesvol geregisteerd!!!';
-        $results['validated'] = true;
-    } else {
-        $results['message'] = 'Wachtwoorden komen niet overeen';
+    if ($foundEmail[1]) {
+        $result['message'] = 'E-mail is al geregistreerd';
+        return $result;
     }
 
-    return $results;
+    if($post['wachtwoord'] === $post['herhaalwachtwoord']) {
+        $appendResult = appendUserToDatabase($conn,$post);
+
+        if (!$appendResult['validated']) {
+            $result['message'] = $appendResult['message'];
+            return $result;
+        }
+
+        $result['validated'] = true;
+        $result['message'] = 'Succesvol geregisteerd!!!';
+
+        return $result;
+    }
+
+    $result['message'] = 'Wachtwoorden komen niet overeen';
+    return $result;
 }
-
 
 //Append newly registered user to the file
 //$path is the path to the users file
 //$submitted is the POST data that was submitted
-function appendFile($path,$data): void {
-    $handle = fopen($path, 'a');
+function appendUserToDatabase(mysqli $conn,array $data): array {
+    $result = [
+        'validated' => false, 
+        'message' =>  ''
+    ];
 
-    if ($handle) {
-        $line = implode('|', $data) . "\n";
-        fwrite($handle, $line);
-        fclose($handle);
-    } 
+    $sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+
+    if (!$stmt) {
+        $result['message'] = 'Error in statement: ' . mysqli_error($conn);
+        return $result;
+    }
+
+    $hashedPassword = password_hash($data['wachtwoord'], PASSWORD_DEFAULT);
+
+    if (!mysqli_stmt_bind_param($stmt, "sss", $data['naam'],$data['email'],$hashedPassword)) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        $result['message'] = "Error in binding: " . $error;
+        return $result;
+    }
+
+    $result['validated'] = mysqli_stmt_execute($stmt);
+
+    if (!$result['validated']) {
+        $error = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+
+        $result['message'] = "Error in execution: " . $error;
+        return $result;
+    }
+
+    mysqli_stmt_close($stmt);
+    return $result;
 }
-
-
-
-
-
-$sql = "INSERT INTO MyGuests (firstname, lastname, email)
-VALUES ('John', 'Doe', 'john@example.com')";
-
-if (mysqli_query($conn, $sql)) {
-  echo "New record created successfully";
-} else {
-  echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-}
-
 ?>

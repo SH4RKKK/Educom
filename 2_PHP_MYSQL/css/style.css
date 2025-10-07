@@ -1,70 +1,180 @@
 body {
   width: 800px;
-  margin: 0 auto; /* center */
+  margin: 0 auto;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  color: #333;
+  background-color: #f5f6fa;
+  line-height: 1.5;
+}
 
-  font-size: 12px;
-  color: darkgrey;
-  background-color: white;
+.content {
+  padding: 0 5px;
+  box-sizing: border-box;
 }
 
 h1.title {
   text-align: center;
-  font-size: 48px;
+  font-size: 46px;
+  font-weight: 700;
+  color: #111;
+  margin: 35px 0 20px;
 }
 
 ul.options {
-  list-style: none;           /* Remove bullets */
-  display: flex;              /* Horizontal layout */
-  gap: 10px;                  
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 0;
-  margin: 20px 0;
-}
-
-ul.options li {
-  margin: 0;
-  padding: 0;
+  margin: 0 0 35px;
 }
 
 ul.options li a {
-    display: block;               /* Fill box completely */
-    padding: 8px 16px;            /* Inside spacing */
-    background-color: blue;  
-    color: white;                
-    text-decoration: none;        /* Remove underline */
-    border: 1px solid black;    /* Black outline */
-    border-radius: 4px;           /* Rounded corners */
-    font-weight: bold;
-    line-height: 1;               /* Remove line-height gaps */
-    box-sizing: border-box;       /* Ensure the border fits nicely */
-    transition: background-color 0.5s, transform 0.1s;
+  display: block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: 0.25s;
 }
 
-/* Button gets darker when hovered */
 ul.options li a:hover {
-  background-color: darkblue;
-  transform: translateY(-1px);
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
 
-footer {
-    margin-top: 40px;
-    padding: 8px;
-
-    color: white;
-    background-color: black;
-    font-size: 10px;
-    text-align: right;
-}
-
-/* Forms MyForm class */
 .myForm label {
   display: inline-block;
   width: 100px;
+  font-weight: 600;
+  color: #222;
 }
 
-/* Modify text and password fields */
 .myForm input[type="text"],
 .myForm input[type="password"] {
   width: 400px;
-  margin-bottom: 12px;
-  display: inline-block;
+  margin-bottom: 14px;
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color .2s;
+}
+
+.myForm input[type="text"]:focus,
+.myForm input[type="password"]:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* ---------- PRODUCT GRID ---------- */
+.page {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.card {
+  flex: 1 1 calc(50% - 20px);   /* two per row including gap */
+  box-sizing: border-box;
+  min-width: 0;                 /* prevents flex overflow */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.card:hover {
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.card img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+/* button + qty */
+.card .actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* quantity input */
+.card input[type="number"] {
+  width: 70px;
+  padding: 6px;
+  text-align: center;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+}
+
+/* order button */
+.card button {
+  padding: 9px 18px;
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(40,167,69,0.3);
+  transition: background-color 0.25s ease, transform 0.1s ease;
+}
+
+.card button:hover {
+  background-color: #1f8c39;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(40,167,69,0.35);
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+  width: 800px;           /* match body width */
+  margin: 20px auto;         /* center it like the body */
+  padding: 14px 10px;
+  box-sizing: border-box;
+  color: #eee;
+  background-color: #111;
+  font-size: 12px;
+  text-align: right;
+  border-top: 4px solid #007bff;
+  letter-spacing: 0.3px;
+}
+footer a {
+  color: #00aeff;
+  text-decoration: none;
+}
+footer a:hover {
+  text-decoration: underline;
+}
+
+
+
+/* highlight invalid field */
+.myForm input.error {
+  border: 2px solid #dc3545;     /* red border for errors */
+  background-color: #ffeaea;     /* subtle light red background */
+}
+
+/* error message text */
+.myForm span.error {
+  display: block;                /* ensures it appears below the input */
+  color: #dc3545;                /* red text */
+  font-size: 13px;
+  margin-bottom: 8px;            /* spacing from next field */
 }

@@ -1,4 +1,0 @@
-saman@example.com|Saman Ahmad|password321
-coach@man-kind.nl|Geert Weggemans|halt!
-m|m|m
-a|a|a

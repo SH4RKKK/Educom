@@ -6,6 +6,7 @@ require 'functions.php';
 $options = [
     'HOME',
     'ABOUT',
+    'WEBSHOP',
     'CONTACT',
     'LOGIN',
     'REGISTER'
@@ -19,13 +20,28 @@ $registerfields = ['Naam','E-mail', 'Wachtwoord','Herhaal wachtwoord'];
 //Files
 $pathToCSS = 'css/style.css';
 
-//Database
+//Databases
 $userDataBase = [
     'servername' => 'localhost',
     'username' => 'root',
-    'password' => '',
+    'password' => '', //dont forget to remove before pushing
     'dbName' => 'user_database',
 ];
+
+$itemDataBase = [
+    'servername' => 'localhost',
+    'username' => 'root',
+    'password' => '', //dont forget to remove before pushing
+    'dbName' => 'item_database',
+];
+
+$orderDataBase = [
+    'servername' => 'localhost',
+    'username' => 'root',
+    'password' => '', //dont forget to remove before pushing
+    'dbName' => 'order_database',
+];
+
 
 //Building the page
 $request = getRequest();

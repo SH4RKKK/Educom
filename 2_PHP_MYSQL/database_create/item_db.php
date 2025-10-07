@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username   = "root";
 $password   = "";
-$dbname     = "user_database";
+$dbname     = "item_database";
 
 $conn = mysqli_connect($servername, $username, $password);
 
@@ -18,12 +18,13 @@ if (!mysqli_query($conn, $sql)) {
 mysqli_select_db($conn, $dbname);
 
 //Create database here
-$sql = "CREATE TABLE IF NOT EXISTS users (
-    id INT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(25) NOT NULL,
-    email VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(64) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+$sql = "CREATE TABLE IF NOT EXISTS items (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )";
 
 if (mysqli_query($conn, $sql)) {

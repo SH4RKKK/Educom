@@ -3,8 +3,8 @@ openHTML();
 makeHead($response['CSS'],'Saman');
 openBody();
 
-if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-    showTitle('Hello ' . $_SESSION['username'],'title');
+if (!empty($_SESSION['logged_in'])) {
+    showTitle('Hello ' . htmlspecialchars($_SESSION['username'],ENT_QUOTES),'title');
 } else {
     showTitle('Hello stranger','title');
 }
