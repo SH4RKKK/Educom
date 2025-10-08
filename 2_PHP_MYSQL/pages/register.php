@@ -12,7 +12,8 @@ if ($response['validated']) {
         'fields'      => $response[$response['page']],
         'action'      => $response['page'],
         'post'        => $_POST ?? [],
-        'emptyFields' => $result['empty'] ?? []
+        'emptyFields' => $response['empty'] ?? []
     ]);
 }
+closeDiv();
 ?>

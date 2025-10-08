@@ -1,22 +1,21 @@
 <?php 
-//Fix this to correcet logic.
+$currentPage = $_SESSION['webshoppage'] ?? 1;
 
-$products = [
-    ['img' => 'images/1.avif', 'name' => 'Product 1'],
-    ['img' => 'images/2.avif', 'name' => 'Product 2']
-];
+if (empty($response['message'])) {
+    showProducts(4,$currentPage,$response['items']);
+} else {
+    showMessage($response['message']);
+}
+
 ?>
-<body>
 
-<div class='page'>
-<?php foreach ($products as $p): ?>
-  <div class="card">
-    <img src="<?php echo htmlspecialchars($p['img'], ENT_QUOTES); ?>"
-         alt="<?php echo htmlspecialchars($p['name']); ?>">
-    <div class="actions">
-      <input type="number" name="quantity" min="1" value="1">
-      <button>Order Now</button>
-    </div>
-  </div>
-<?php endforeach; //Order button only when logged or Login to order now?>
-</div>
+<!-- Pagination buttons -->
+<form method="post" style="text-align:center; margin-top:20px;" action="index.php">
+<input type="hidden" name="page" value="webshop">
+  <?php for ($i = 1; $i <= 2; $i++): ?>
+    <button type="submit" name="webshoppage" value="<?= $i ?>"
+      <?= $i === $currentPage ? 'disabled style="font-weight:bold;"' : '' ?>>
+      <?= $i ?>
+    </button>
+  <?php endfor; closeDiv();?>
+</form>

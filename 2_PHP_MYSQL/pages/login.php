@@ -12,7 +12,8 @@ if (!empty($_SESSION['logged_in'])) {
         'fields'      => $response[$response['page']],
         'action'      => $response['page'],
         'post'        => $_POST ?? [],
-        'emptyFields' => $result['empty'] ?? []
+        'emptyFields' => $response['empty'] ?? []
     ]);
 }
+closeDiv();
 ?>

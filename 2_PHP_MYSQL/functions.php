@@ -22,6 +22,11 @@ function openBody(): void {
     echo '<body><div class="content">';
 }
 
+//Open div
+function openDiv($class = ''): void {
+    echo '<div' . ($class ? ' class="' . $class . '"' : '') . '>';
+}
+
 //Show title
 //$title is the title that you want to show on the page
 //$class is the style-class you want to use for the title
@@ -91,14 +96,16 @@ function showForm(array $config): void {
 
         echo '<label for="' . $cleanedField . '">' . $field . ':</label>';
 
+        $inputClass = $isEmpty ? 'error' : '';
+
         if (str_contains($cleanedField,'wachtwoord')) {
-            echo '<input type="password" id="' . $cleanedField . '" name="' . $cleanedField . '" value="' . $info . '" autocomplete="new-password">';
+            echo '<input type="password" class="' . $inputClass . '" id="' . $cleanedField . '" name="' . $cleanedField . '" value="' . $info . '" autocomplete="new-password">';
         } else {
-            echo '<input type="text" id="' . $cleanedField . '" name="' . $cleanedField . '" value="' . $info . '">';
+            echo '<input type="text" class="' . $inputClass . '" id="' . $cleanedField . '" name="' . $cleanedField . '" value="' . $info . '">';
         }
 
         if ($isEmpty) {
-            echo '<span>Veld is leeg!</span>';
+        echo '<span class="error">Veld is leeg!</span>';
         }
 
         echo '<br>';
@@ -106,6 +113,10 @@ function showForm(array $config): void {
 
     echo '<input type="submit" value="Verstuur">';
     echo '</form>';
+}
+
+function closeDiv(): void {
+    echo '</div>';
 }
 
 //Close body
@@ -164,15 +175,36 @@ function validateRequest(array $request) : array {
     //POST
     if ($request['posted']) {
         $result['empty'] = inputValidationForm($_POST);
-        $_POST['email'] = strtolower(trim($_POST['email']));
-
+        
         if (!empty($result['empty'])) {
             return $result;
         }
 
         switch ($request['page']) {
+            case 'webshop':
+                $_SESSION['webshoppage'] = (int)$_POST['webshoppage'];
+                handleWebshopReq($result);
+                break;
+            case 'order':
+                $itemId = (int)($_POST['item_id']);
+                $amount = (int)($_POST['amount']);
+
+                if (!isset($_SESSION['orders'])) {
+                    $_SESSION['orders'] = [];
+                }
+
+                if (isset($_SESSION['orders'][$itemId])) {
+                    $_SESSION['orders'][$itemId] += $amount;
+                } else {
+                    $_SESSION['orders'][$itemId] = $amount;
+                }
+                $result['page'] = 'webshop';
+                handleWebshopReq($result);
+                break;
             case 'login':
             case 'register':
+                $_POST['email'] = strtolower(trim($_POST['email']));
+
                 $conn = connectDataBase($request['userDatabase']);
                 
                 if (!$conn) {
@@ -190,6 +222,7 @@ function validateRequest(array $request) : array {
                 break;
             default:
                 $result['validated'] = true;
+                break;
         }
     //GET where the request needs to be validated
     } else {
@@ -202,19 +235,22 @@ function validateRequest(array $request) : array {
                 }
                 $result['page'] = 'login';
                 break;
+            case 'webshop':
+                    handleWebshopReq($result);
+                break;
             default:
                 break;
         }
     }
-    
-    //Check if page is allowed otherwise return to home
-    if (!in_array($result['page'],array_map('strtolower', $result['menu']))) $result['page'] = 'home';
 
     //Remove LOGIN and REGISTER if user logged in
     if (!empty($_SESSION['logged_in'])) {
         $result['menu'] = array_diff($request['menu'], ['LOGIN', 'REGISTER']);
-        $result['menu'][] = 'LOGOUT';
+        $result['menu'] = array_merge($result['menu'], ['CART', 'LOGOUT']);
     }
+    
+    //Check if page is allowed otherwise return to home
+    if (!in_array($result['page'],array_map('strtolower', $result['menu']))) $result['page'] = 'home';
 
     return $result;
 } 
@@ -378,5 +414,71 @@ function appendUserToDatabase(mysqli $conn,array $data): array {
 
     mysqli_stmt_close($stmt);
     return $result;
+}
+
+function fetchItems(mysqli $conn): array {
+    $sql = "SELECT id, name, description, price, image_path FROM items ORDER BY id ASC";
+    $result = mysqli_query($conn, $sql);
+
+    $products = [];
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $products[] = $row;
+        }
+    }
+
+    return $products;
+}
+
+function showProducts(int $productPerPage, int $currentPage, array $products): void {
+    $totalPages = ceil(count($products) / $productPerPage);
+    $displayPage = max(1, min($currentPage, $totalPages));
+    $startIndex  = ($displayPage - 1) * $productPerPage;
+
+    $productsToShow = array_slice($products, $startIndex, $productPerPage);
+
+    //Dit moet nog gefixt worden + CSS
+    openDiv('page');
+    foreach($productsToShow as $p) {
+        openDiv('card');
+        echo '<img src="images/' . $p['image_path'] . '" alt="'  . $p['name'] . '">';
+        openDiv('actions');
+        echo $p['name'] . '- €' . number_format($p['price'], 2, ',', '') ;
+
+        if(!empty($_SESSION['logged_in'])) {
+            echo '<form method="post" action="index.php">';
+            echo '<input type="hidden" name="page" value="order">';
+            echo '<input type="hidden" name="item_id" value="' . (int)$p['id'] . '">';
+            echo '<input type="number" name="amount" min="1" value="1">';
+            echo '<button type="submit">Order Now</button>';
+            echo '</form>';
+        } else {
+            echo '<a href="index.php?page=login">Login to order!</a>';
+        }
+
+        closeDiv();
+        closeDiv();
+    }
+    
+    closeDiv();
+}
+
+function handleWebshopReq (array &$result): void {
+    $conn = connectDataBase($result['itemDatabase']);
+
+    if (!$conn) {
+        $result['message'] = "Connection failed: " . mysqli_connect_error();
+        return;
+    }
+
+    $products = fetchItems($conn);
+    if(empty($products)) {
+        $result['message'] = 'Failed to fetch products';
+        mysqli_close($conn);
+        return;
+    }
+
+    $result['items'] = $products;
+    mysqli_close($conn);
 }
 ?>
