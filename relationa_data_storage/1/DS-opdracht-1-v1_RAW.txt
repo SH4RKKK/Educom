@@ -1,0 +1,129 @@
+Table leverancier {
+  id int [primary key, increment]
+  naam varchar(255)
+  adres_id int [not null]
+  postbus_id int [not null]
+  email varchar(255)
+  mobiel_nummer int [not null]
+  vast_nummer int [not null]
+  contactpersonen_id int [not null]
+
+  // Mogelijke eigenschappen (all optional)
+  
+  // Type C
+  overige_adressen text
+  aanbiedingen text
+  aangesloten_bij text
+  algemene_bedrijfsinfo text
+  brochure text
+  certificaten_keurmerk text
+  dealer_van text
+  dealers text
+  dochterbedrijf_van text
+  downloads text
+  folders text
+  huismerken text
+  importeur_van text
+  
+  // Type A
+  app varchar(255)
+  facebook varchar(255)
+  
+  // Type B
+  advies boolean
+  diabetici boolean
+  directe_link_met_bestellijsten boolean
+  eco_producten boolean
+  fairtrade_producten boolean
+  garantie boolean
+  gastenboek boolean
+  gerechten_recepten boolean
+  glutenvrij boolean
+  halal boolean
+  handleidingen boolean
+  installatie_montage boolean
+  kerstpakketten boolean
+
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+}
+
+Table adres {
+  id int [primary key, increment]
+  straatnaam varchar(255)
+  nummer int [not null] 
+  postcode_id int [not null]
+  woonplaats varchar(255)
+  gemeente_id int [not null] 
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+}
+
+Table postbus {
+  id int [primary key, increment]
+  postbusnummer int [not null]
+  postcode_id int [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
+}
+
+Table gemeente {
+  id int [primary key, increment]
+  naam varchar(255)
+  provincie_id int [not null]
+}
+
+Table provincie {
+  id int [primary key, increment]
+  naam varchar(255)
+  land_id int [not null]
+}
+
+Table land {
+  id int [primary key, increment]
+  naam varchar(255)
+}
+
+Table postcode {
+  id int [primary key, increment]
+  postcode varchar(6)
+  straatnaam varchar(255)
+  woonplaats varchar(255)
+  coordinates point [not null]
+  Note: '''
+    Spatial data table using MySQL POINT type
+    - SRID 4326 (WGS 84 coordinate system)
+    - SPATIAL INDEX on coordinates
+    - Format: POINT(longitude latitude)
+  '''
+}
+
+Table contactpersonen {
+  id int [primary key, increment]
+  contactpersoon_id int [not null]
+}
+
+Table contactpersoon {
+  id int [primary key, increment]
+  naam varchar(255)
+  email varchar(255)
+  mobiel_nummer int [not null]
+  werkzaamheden_id int [not null]
+}
+
+Table werkzaamheden {
+  id int [primary key, increment]
+  afdeling varchar(255)
+  taak varchar(255)
+}
+
+Ref leverancier_adres: leverancier.adres_id > adres.id
+Ref leverancier_postbus: leverancier.postbus_id > postbus.id
+Ref adres_gemeente: adres.gemeente_id > gemeente.id
+Ref gemeente_provincie: gemeente.provincie_id > provincie.id
+Ref provincie_land: provincie.land_id > land.id
+Ref postcode_gegevens: postbus.postcode_id > postcode.id
+Ref postcode_gegevens: adres.postcode_id > postcode.id
+Ref leverancier_contact_personen: leverancier.contactpersonen_id > contactpersonen.id
+Ref contact_persoon_gegevens: contactpersonen.contactpersoon_id > contactpersoon.id
+Ref contactpersoon_werkzaamheden: contactpersoon.werkzaamheden_id > werkzaamheden.id
