@@ -113,8 +113,18 @@ Table contactpersoon {
 
 Table werkzaamheden {
   id int [primary key, increment]
-  afdeling varchar(255) [not null]
-  taak varchar(255) [not null]
+  afdeling_id int [not null]
+  taak_id int [not null]
+}
+
+Table afdeling {
+  id int [primary key, increment]
+  naam varchar(255) [not null]
+}
+
+Table taak {
+  id int [primary key, increment]
+  naam varchar(255) [not null]
 }
 
 Ref leverancier_adres: leverancier.adres_id > adres.id
@@ -127,3 +137,5 @@ Ref postcode_gegevens: adres.postcode_id > postcode.id
 Ref leverancier_contact_personen: leverancier.contactpersonen_id > contactpersonen.id
 Ref contact_persoon_gegevens: contactpersonen.contactpersoon_id > contactpersoon.id
 Ref contactpersoon_werkzaamheden: contactpersoon.werkzaamheden_id > werkzaamheden.id
+Ref afdeling_gegevens: werkzaamheden.afdeling_id > afdeling.id
+Ref taak_gegevens: werkzaamheden.taak_id > taak.id
