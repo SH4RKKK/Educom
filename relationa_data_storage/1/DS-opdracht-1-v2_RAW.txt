@@ -1,9 +1,9 @@
 Table leverancier {
   id int [primary key, increment]
-  naam varchar(255)
+  naam varchar(255) [not null]
   adres_id int [not null]
   postbus_id int [not null]
-  email varchar(255)
+  email varchar(255) [not null]
   mobiel_nummer int [not null]
   vast_nummer int [not null]
   contactpersonen_id int [not null]
@@ -50,10 +50,10 @@ Table leverancier {
 
 Table adres {
   id int [primary key, increment]
-  straatnaam varchar(255)
+  straatnaam varchar(255) [not null]
   nummer int [not null] 
   postcode_id int [not null]
-  woonplaats varchar(255)
+  woonplaats varchar(255) [not null]
   gemeente_id int [not null] 
   created_at timestamp [default: `CURRENT_TIMESTAMP`]
   updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'ON UPDATE CURRENT_TIMESTAMP']
@@ -69,26 +69,26 @@ Table postbus {
 
 Table gemeente {
   id int [primary key, increment]
-  naam varchar(255)
+  naam varchar(255) [not null]
   provincie_id int [not null]
 }
 
 Table provincie {
   id int [primary key, increment]
-  naam varchar(255)
+  naam varchar(255) [not null]
   land_id int [not null]
 }
 
 Table land {
   id int [primary key, increment]
-  naam varchar(255)
+  naam varchar(255) [not null]
 }
 
 Table postcode {
   id int [primary key, increment]
-  postcode varchar(6)
-  straatnaam varchar(255)
-  woonplaats varchar(255)
+  postcode varchar(6) [not null]
+  straatnaam varchar(255) [not null]
+  woonplaats varchar(255) [not null]
   coordinates point [not null]
   Note: '''
     Spatial data table using MySQL POINT type
@@ -105,16 +105,16 @@ Table contactpersonen {
 
 Table contactpersoon {
   id int [primary key, increment]
-  naam varchar(255)
-  email varchar(255)
+  naam varchar(255) [not null]
+  email varchar(255) [not null]
   mobiel_nummer int [not null]
   werkzaamheden_id int [not null]
 }
 
 Table werkzaamheden {
   id int [primary key, increment]
-  afdeling varchar(255)
-  taak varchar(255)
+  afdeling varchar(255) [not null]
+  taak varchar(255) [not null]
 }
 
 Ref leverancier_adres: leverancier.adres_id > adres.id
