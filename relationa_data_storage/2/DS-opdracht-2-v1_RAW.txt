@@ -1,0 +1,85 @@
+Table categories {
+  CategoryID    int [primary key, increment]
+  CategoryName 	varchar(255) [not null]
+  Description 	varchar(255) [not null]
+}
+
+Table customers {
+  CustomerID    int [primary key, increment]
+  CustomerName 	varchar(255) [not null]
+  ContactName 	varchar(255) [not null]
+  Address 	varchar(255)
+  City 	varchar(255) [not null]
+  PostalCode 	varchar(255) [not null]
+  Country 	varchar(255) [not null]
+}
+
+Table employees {
+  EmployeeID    int [primary key, increment]
+  LastName 	varchar(255) [not null]
+  FirstName 	varchar(255) [not null]
+  BirthDate 	date [not null]
+  Photo 	varchar(255) [not null]
+  Notes 	text
+}
+
+Table orderdetails {
+  OrderDetailID   int [primary key, increment]
+  OrderID   int [not null]
+  ProductID   int [not null]
+  Quantity 	int [not null]
+}
+
+Table orders {
+  OrderID   int [primary key, increment]
+  CustomerID  int [not null]
+  EmployeeID  int [not null]
+  OrderDate   date [not null]
+  ShipperID int [not null]
+}
+
+Table products {
+  ProductID int [primary key, increment]
+  ProductName 	varchar(255) [not null]
+  SupplierID 	int [not null]
+  CategoryID  int [not null]
+  Unit 	varchar(255) [not null]
+  Price 	dec(6,2) [not null]
+}
+
+Table shippers {
+  ShipperID int [primary key, increment]
+  ShipperName 	varchar(255) [not null]
+  Phone 	varchar(255)  [not null]
+}
+
+Table supplies {
+  SupplierID int [primary key, increment]
+  SupplierName 	varchar(255) [not null]
+  ContactName 	varchar(255) 	[not null]
+  Address 	varchar(255) 	[not null]
+  City 	varchar(255) 	[not null]
+  PostalCode 	varchar(255) [not null]
+  Country 	varchar(255) [not null]
+  Phone 	varchar(255) [not null]
+}
+
+Table temp_customer {
+  CustomerName1 	varchar(255) 	[not null]
+  CustomerName2 	varchar(255) 	[not null]
+  City 	varchar(255) 	[not null]
+}
+
+Ref: "orders"."CustomerID" < "customers"."CustomerID"
+
+Ref: "employees"."EmployeeID" < "orders"."EmployeeID"
+
+Ref: "shippers"."ShipperID" < "orders"."ShipperID"
+
+Ref: "orders"."OrderID" < "orderdetails"."OrderID"
+
+Ref: "orderdetails"."ProductID" < "products"."ProductID"
+
+Ref: "products"."CategoryID" < "categories"."CategoryID"
+
+Ref: "products"."SupplierID" < "supplies"."SupplierID"
