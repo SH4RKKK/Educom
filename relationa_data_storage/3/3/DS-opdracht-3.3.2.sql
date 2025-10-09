@@ -1,0 +1,1 @@
+SELECT * FROM leveranciers ORDER BY lidmaatschap, stad, postcode

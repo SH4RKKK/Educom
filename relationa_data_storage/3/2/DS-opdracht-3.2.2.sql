@@ -1,0 +1,1 @@
+SELECT name, straat, huisnr, postcode FROM leveranciers WHERE lidmaatschap IN ('Gold', 'Silver', 'Bronze', 'GEEN INTERESSE');
