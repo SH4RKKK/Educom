@@ -1,1 +1,2 @@
-SELECT * FROM leveranciers ORDER BY lidmaatschap, stad, postcode
+SELECT * 
+FROM mhl_suppliers ORDER BY membertype, city_ID, postcode;

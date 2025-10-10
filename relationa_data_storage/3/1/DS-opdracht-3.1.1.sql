@@ -1,1 +1,2 @@
-SELECT * FROM stedentabel;
+SELECT * 
+FROM mhl_cities;

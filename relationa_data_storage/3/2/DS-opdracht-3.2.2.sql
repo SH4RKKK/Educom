@@ -1,1 +1,8 @@
-SELECT name, straat, huisnr, postcode FROM leveranciers WHERE lidmaatschap IN ('Gold', 'Silver', 'Bronze', 'GEEN INTERESSE');
+SELECT name, straat, huisnr, postcode 
+FROM mhl_suppliers
+WHERE membertype IN (
+    1,
+    2,
+    3,
+    8
+);

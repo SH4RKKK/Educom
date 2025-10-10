@@ -1,1 +1,3 @@
-SELECT DISTINCT name FROM stedentabel ORDER BY name
+SELECT DISTINCT name 
+FROM mhl_cities 
+ORDER BY name

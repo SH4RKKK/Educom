@@ -1,6 +1,6 @@
 SELECT name, straat, huisnr, postcode 
-FROM leveranciers 
-WHERE 
-  CAST(REGEXP_REPLACE(huisnr, '[^0-9]', '') AS UNSIGNED) BETWEEN 10 AND 20
+FROM mhl_suppliers
+WHERE
+  CAST(REGEXP_SUBSTR(huisnr, '^[0-9]+') AS UNSIGNED) BETWEEN 10 AND 20
   OR 
-  CAST(REGEXP_REPLACE(huisnr, '[^0-9]', '') AS UNSIGNED) > 100;
+  CAST(REGEXP_SUBSTR(huisnr, '^[0-9]+') AS UNSIGNED) > 100;

@@ -1,1 +1,2 @@
-SELECT DISTINCT name FROM stedentabel;
+SELECT DISTINCT name 
+FROM mhl_cities;

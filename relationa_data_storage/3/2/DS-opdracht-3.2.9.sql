@@ -1,4 +1,4 @@
 SELECT name, straat, huisnr, postcode 
-FROM leveranciers 
-WHERE 
+FROM mhl_suppliers
+WHERE
   name LIKE '%groothandel%'
