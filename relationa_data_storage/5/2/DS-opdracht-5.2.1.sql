@@ -6,8 +6,17 @@ SELECT
     city.name stad,
     provincie.name provincie
 FROM mhl_suppliers s
-LEFT JOIN mhl_contacts c ON c.supplier_id = s.id 
-    AND ((c.department = 3) OR (c.department = 1 AND c.contacttype LIKE '%direct%'))
+
+-- Need to subquery to get all directors for each supplier
+LEFT JOIN (
+    SELECT 
+        c.supplier_id,
+        c.name,
+        c.department
+    FROM mhl_contacts c
+    WHERE c.department = 3 OR c.contacttype LIKE '%direct%'
+) c ON c.supplier_id = s.id
+
 LEFT JOIN mhl_departments d ON c.department = d.id
 
 -- IFNULL value null get replacement, NULLIF return NULL if value is the same else left value
