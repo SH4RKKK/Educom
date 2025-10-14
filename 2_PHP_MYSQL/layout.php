@@ -1,7 +1,7 @@
 <?php
 function createHeader(array $response): void {
     openHTML();
-    makeHead($response['CSS'],'Saman');
+    makeHead($response['CSS'],"Saman's Whey");
     openBody();
     openDiv('content');
     if (!empty($_SESSION['logged_in'])) {

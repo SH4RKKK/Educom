@@ -1,21 +1,22 @@
 <?php 
 $currentPage = $_SESSION['webshoppage'] ?? 1;
+$productPerPage = 4;
+
+$totalPages = ceil(count($response['items']) / $productPerPage);
+$displayPage = max(1, min($currentPage, $totalPages));
+$startIndex  = ($displayPage - 1) * $productPerPage;
+
+$productsToShow = array_slice($response['items'], $startIndex, $productPerPage);
 
 if (empty($response['message'])) {
-    showProducts(4,$currentPage,$response['items']);
+    $response['items'] ? showProducts($productsToShow) : showMessage('Geen producten te koop');
 } else {
     showMessage($response['message']);
 }
 
-?>
+if($totalPages > 1) {
+    showPagination($currentPage, $totalPages);
+}
 
-<!-- Pagination buttons -->
-<form method="post" style="text-align:center; margin-top:20px;" action="index.php">
-<input type="hidden" name="page" value="webshop">
-  <?php for ($i = 1; $i <= 2; $i++): ?>
-    <button type="submit" name="webshoppage" value="<?= $i ?>"
-      <?= $i === $currentPage ? 'disabled style="font-weight:bold;"' : '' ?>>
-      <?= $i ?>
-    </button>
-  <?php endfor; closeDiv();?>
-</form>
+closeDiv();
+?>

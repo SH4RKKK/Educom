@@ -57,17 +57,30 @@ ul.options li a:hover {
 }
 
 .card {
-  flex: 1 1 calc(50% - 20px); /* 2 per row with gap */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 12px;
   box-sizing: border-box;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .card:hover {
   box-shadow: 0 6px 14px rgba(0,0,0,0.12);
   transform: translateY(-2px);
+}
+
+/* Card link - covers image and product name */
+.card .card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 10px;
+}
+
+.card .card-content {
+  margin-top: 10px;
+  text-align: center;
 }
 
 .card img {
@@ -95,8 +108,8 @@ ul.options li a:hover {
   border-radius: 4px;
 }
 
-/* order button */
-.card a,
+/* order button - only style buttons and .actions links */
+.card .actions a,
 .card button {
   margin-left: 4px;
   padding: 9px 18px;
@@ -112,7 +125,8 @@ ul.options li a:hover {
   transition: background-color 0.25s ease, transform 0.1s ease;
 }
 
-.card a:hover {
+.card .actions a:hover,
+.card button:hover {
   background-color: #1f8c39;
   transform: translateY(-1px);
   box-shadow: 0 3px 6px rgba(40,167,69,0.35);
@@ -120,8 +134,8 @@ ul.options li a:hover {
 
 /* ---------- FOOTER ---------- */
 footer {
-  width: 800px;           /* match body width */
-  margin: 20px auto;         /* center it like the body */
+  width: 800px;
+  margin: 20px auto;
   padding: 14px 10px;
   box-sizing: border-box;
   color: #eee;
@@ -156,19 +170,17 @@ footer {
   border-color: #007bff;
 }
 
-/* highlight invalid field */
 .myForm input.error {
-  border: 2px solid #dc3545;     /* red border for errors */
-  background-color: #ffeaea;     /* subtle light red background */
+  border: 2px solid #dc3545;
+  background-color: #ffeaea;
 }
 
-/* error message text */
 .myForm span.error {
-  display: inline;                /* ensures it appears below the input */
-  color: #dc3545;                /* red text */
+  display: inline;
+  color: #dc3545;
   font-size: 13px;
   margin-left: 8px;
-  margin-bottom: 8px;            /* spacing from next field */
+  margin-bottom: 8px;
 }
 
 .pagination a {
@@ -179,8 +191,6 @@ footer {
 .pagination a:hover {
   text-decoration: underline;
 }
-
-
 
 .cart-wrapper {
   max-width: 1100px;
@@ -201,7 +211,6 @@ footer {
   gap: 40px;
 }
 
-/* left panel */
 .cart-items {
   flex: 1 1 65%;
 }
@@ -239,7 +248,6 @@ footer {
   background-color: #f6f6f6;
 }
 
-/* right panel */
 .cart-summary {
   flex: 1 1 30%;
   border: 1px solid #eaeaea;
@@ -293,7 +301,6 @@ footer {
   background-color: #333;
 }
 
-/* responsive */
 @media (max-width: 800px) {
   .cart-container {
     flex-direction: column;
@@ -301,4 +308,81 @@ footer {
   .cart-summary {
     width: 100%;
   }
+}
+
+.product-detail {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 30px;
+  margin: 20px 0;
+  box-sizing: border-box;
+}
+
+.product-image-section {
+  margin-bottom: 30px;
+}
+
+.product-image-section img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.product-info-section h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 15px;
+  color: #111;
+}
+
+.product-price {
+  font-size: 28px;
+  font-weight: 600;
+  color: #28a745;
+  margin: 0 0 20px;
+}
+
+.product-description {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.product-order-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.product-order-form input[type="number"] {
+  width: 80px;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.product-order-form button,
+.login-prompt {
+  padding: 12px 24px;
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  display: inline-block;
+  transition: background-color 0.25s ease;
+}
+
+.product-order-form button:hover,
+.login-prompt:hover {
+  background-color: #1f8c39;
 }

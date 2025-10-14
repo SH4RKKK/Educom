@@ -7,6 +7,8 @@ function validateRequest(array $request) : array {
         'message' => '',
         'validated' => false,
         'empty' => [],
+        'items' => [],
+        'item' => []
     ];
 
     //POST
@@ -24,6 +26,11 @@ function validateRequest(array $request) : array {
         }
 
         switch ($request['page']) {
+            case 'cart':
+                fetchItems($result);
+                $cartItems = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
+                $result = array_merge($result, appendOrderToDatabase($request['db'], $_SESSION['user_id'], $cartItems));
+                break;
             case 'webshop':
                 $_SESSION['webshoppage'] = (int)$_POST['webshoppage'];
                 fetchItems($result);
@@ -66,8 +73,15 @@ function validateRequest(array $request) : array {
                 $result['page'] = 'login';
                 break;
             case 'webshop':
-                    fetchItems($result);
+            case 'cart':
+                fetchItems($result);
                 break;
+            case 'product':
+                try {
+                    fetchItemDetails($result,$_GET['id']);
+                } catch (Throwable $e) {
+                    $result['message'] = 'Invalid product argument';
+                }
             default:
                 break;
         }
@@ -79,8 +93,10 @@ function validateRequest(array $request) : array {
         $result['menu'] = array_merge($result['menu'], ['CART', 'LOGOUT']);
     }
     
+    //Add new pages
+    $allowedPages = array_merge($result['menu'], ['product']);
     //Check if page is allowed otherwise return to home
-    if (!in_array($result['page'],array_map('strtolower', $result['menu']))) $result['page'] = 'home';
+    if (!in_array($result['page'],array_map('strtolower', $allowedPages))) $result['page'] = 'home';
 
     return $result;
 } 

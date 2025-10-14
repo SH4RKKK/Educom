@@ -172,7 +172,7 @@ function checkEmail(mysqli $conn, string $email): array {
         mysqli_stmt_close($stmt);
         
         return $row ? [$row, true, ''] : [null, false, ''];
-    } catch (mysqli_sql_exception $e) {
+    } catch (Throwable $e) {
         if (isset($stmt)) mysqli_stmt_close($stmt);
         return [null, false, 'Error checking email: ' . $e];
     }
@@ -197,6 +197,7 @@ function handleLogin(mysqli $conn,array $post) : string {
     }
 
     $_SESSION['username'] = $row['name'];
+    $_SESSION['user_id'] = $row['id'];
     $_SESSION['logged_in'] = true;
     return 'Login succesvol';
 }
@@ -287,21 +288,40 @@ function fetchItems (array &$result): void {
     }
 }
 
-function showProducts(int $productPerPage, int $currentPage, array $products): void {
-    $totalPages = ceil(count($products) / $productPerPage);
-    $displayPage = max(1, min($currentPage, $totalPages));
-    $startIndex  = ($displayPage - 1) * $productPerPage;
+function fetchItemDetails (array &$result, int $itemID): void {
+    $sql  = "SELECT * 
+             FROM items 
+             WHERE id = ?";
 
-    $productsToShow = array_slice($products, $startIndex, $productPerPage);
+    try {
+        $stmt = mysqli_prepare($result['db'], $sql);
+        mysqli_stmt_bind_param($stmt, "i", $itemID);
+        mysqli_stmt_execute($stmt);
+        
+        $resultQuery = mysqli_stmt_get_result($stmt);
+        $result['item'] = mysqli_fetch_assoc($resultQuery);
+        
+        mysqli_stmt_close($stmt);
+    } catch (Throwable $e) {
+        if (isset($stmt)) mysqli_stmt_close($stmt);
+        $result['message'] = 'Error fetching item details: ' . $e;
+    }
+}
 
-    //Dit moet nog gefixt worden + CSS
+//Fix in future + CSS
+function showProducts(array $productsToShow): void {
     openDiv('page');
     foreach($productsToShow as $p) {
         openDiv('card');
+        
+        echo '<a href="index.php?page=product&id=' . (int)$p['id'] . '" class="card-link">';
         echo '<img src="images/' . $p['image_path'] . '" alt="'  . $p['name'] . '">';
+        echo '<div class="card-content">';
+        echo $p['name'] . ' - €' . number_format($p['price'], 2, ',', '');
+        echo '</div>';
+        echo '</a>';
+        
         openDiv('actions');
-        echo $p['name'] . '- €' . number_format($p['price'], 2, ',', '') ;
-
         if(!empty($_SESSION['logged_in'])) {
             echo '<form method="post" action="index.php">';
             echo '<input type="hidden" name="page" value="order">';
@@ -312,13 +332,159 @@ function showProducts(int $productPerPage, int $currentPage, array $products): v
         } else {
             echo '<a href="index.php?page=login">Login to order!</a>';
         }
-
         closeDiv();
         closeDiv();
     }
-    
     closeDiv();
 }
 
+//Fix in future + CSS
+function showPagination(int $currentPage, int $totalPages): void {
+    echo '<form method="post" style="text-align:center; margin-top:20px;" action="index.php">';
+    echo '<input type="hidden" name="page" value="webshop">';
+    
+    for ($i = 1; $i <= $totalPages; $i++) {
+        $disabled = $i === $currentPage ? 'disabled style="font-weight:bold;"' : '';
+        echo '<button type="submit" name="webshoppage" value="' . $i . '" ' . $disabled . '>';
+        echo $i;
+        echo '</button>';
+    }
+    echo '</form>';
+}
 
+function showProductDetail(array $product): void {
+    openDiv('product-detail');
+    
+    openDiv('product-image-section');
+    echo '<img src="images/' . $product['image_path'] . '" alt="' . $product['name'] . '">';
+    closeDiv();
+    
+    openDiv('product-info-section');
+    echo '<h2>' . $product['name'] . '</h2>';
+    echo '<p class="product-price">€' . number_format($product['price'], 2, ',', '') . '</p>';
+    
+    if (!empty($product['description'])) {
+        echo '<p class="product-description">' . htmlspecialchars($product['description']) . '</p>';
+    }
+    
+    if (!empty($_SESSION['logged_in'])) {
+        echo '<form method="post" action="index.php" class="product-order-form">';
+        echo '<input type="hidden" name="page" value="order">';
+        echo '<input type="hidden" name="item_id" value="' . (int)$product['id'] . '">';
+        echo '<input type="number" name="amount" min="1" value="1">';
+        echo '<button type="submit">Order Now</button>';
+        echo '</form>';
+    } else {
+        echo '<a href="index.php?page=login" class="login-prompt">Login to order!</a>';
+    }
+    
+    closeDiv();
+    closeDiv();
+}
+
+function appendAmountToItem (array $session, array $items): array {
+    return array_filter(array_map(function($product) use ($session) {
+    $id = $product['id'];
+    if (isset($session[$id])) {
+        $product['amount'] = $session[$id];
+        return $product;
+    }
+    return null;
+}, $items));
+}
+
+//Fix in future + CSS
+function showCart(array $cartItems): void {
+    
+    $total = 0;
+    
+    echo '<div class="cart-wrapper">';
+    echo '<h1 class="cart-title">Shopping Cart</h1>';
+    echo '<div class="cart-container">';
+    echo '<div class="cart-items">';
+    echo '<table class="cart-table">';
+    echo '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th></tr></thead>';
+    echo '<tbody>';
+    
+    foreach ($cartItems as $item) {
+        $subtotal = $item['price'] * $item['amount'];
+        $total += $subtotal;
+        
+        echo '<tr>';
+        echo '<td class="cart-product">';
+        if (!empty($item['image_path'])) {
+            echo '<img src="images/' . htmlspecialchars($item['image_path']) . '" alt="' . htmlspecialchars($item['name']) . '">';
+        }
+        echo '<span>' . htmlspecialchars($item['name']) . '</span>';
+        echo '</td>';
+        echo '<td>€' . number_format($item['price'], 2, ',', '.') . '</td>';
+        echo '<td>' . (int)$item['amount'] . '</td>';
+        echo '<td>€' . number_format($subtotal, 2, ',', '.') . '</td>';
+        echo '</tr>';
+    }
+    
+    $shipping = 5.95;
+    echo '</tbody></table></div>';
+    
+    echo '<div class="cart-summary">';
+    echo '<h3>Cart totals</h3>';
+    echo '<div class="summary-row"><span>Subtotal</span><span>€' . number_format($total, 2, ',', '.') . '</span></div>';
+    echo '<div class="summary-row"><span>Shipping</span><span>€' . number_format($shipping, 2, ',', '.') . '</span></div>';
+    $total += $shipping;
+    echo '<div class="summary-total"><span>Total</span><span>€' . number_format($total, 2, ',', '.') . '</span></div>';
+    echo '<form method="post" action="index.php">';
+    echo '<input type="hidden" name="page" value="cart">';
+    echo '<button type="submit" class="checkout-btn">Proceed to checkout</button>';
+    echo '</form>';
+    echo '</div></div></div>';
+}
+
+function appendOrderToDatabase(mysqli $conn, int $userId, array $cartItems): array {
+    $result = [
+        'validated' => false, 
+        'message' => ''
+    ];
+
+    try {
+        mysqli_begin_transaction($conn);
+        
+        $total = 0;
+        foreach ($cartItems as $item) {
+            $total += $item['price'] * $item['amount'];
+        }
+        
+        //orders table
+        $sqlOrder = "INSERT INTO orders (user_id, status_id, total) VALUES (?, 1, ?)";
+        $stmt = mysqli_prepare($conn, $sqlOrder);
+        mysqli_stmt_bind_param($stmt, "id", $userId, $total);
+        mysqli_stmt_execute($stmt);
+        
+        $orderId = mysqli_insert_id($conn);
+        mysqli_stmt_close($stmt);
+        
+        //order_items table
+        $sqlItem = "INSERT INTO order_items (order_id, item_id, amount, unit_price) VALUES (?, ?, ?, ?)";
+        $stmt = mysqli_prepare($conn, $sqlItem);
+        
+        foreach ($cartItems as $item) {
+            mysqli_stmt_bind_param($stmt, "iiid", $orderId, $item['id'], $item['amount'], $item['price']);
+            mysqli_stmt_execute($stmt);
+        }
+        
+        mysqli_stmt_close($stmt);
+        
+        mysqli_commit($conn);
+        
+        $result['validated'] = true;
+        $result['message'] = 'Order placed successfully! Order #' . $orderId;
+        unset($_SESSION['orders']);
+        
+    } catch (Throwable $e) {
+        mysqli_rollback($conn);
+        if (isset($stmt)) mysqli_stmt_close($stmt);
+        $result['message'] = 'Error adding order: ' . $e;
+    }
+    
+    return $result;
+}
 ?>

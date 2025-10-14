@@ -11,7 +11,7 @@ $pathToCSS = 'css/style.css';
 $request = getRequest();
 
 //Connect to database
-$request['db'] = false;
+$request['db'] = null;
 try {
     $request['db'] = mysqli_connect(
         'localhost',
@@ -20,6 +20,7 @@ try {
         'website'
     );
 } catch (mysqli_sql_exception $e) {
+    $request['db'] = null;
     echo 'Connection failed: ' . $e;
 }
 
@@ -38,7 +39,5 @@ $response = validateRequest($request);
 $response['CSS'] = $pathToCSS;
 showResponse($response);
 
-if($response['db']) {
-    mysqli_close($response['db']);
-}
+if($request['db']) mysqli_close($request['db']);
 ?>
