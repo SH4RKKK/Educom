@@ -1,4 +1,9 @@
 <?php
+$loginFields = [
+    'E-mail',
+    'Wachtwoord'
+];
+
 if (!empty($_SESSION['logged_in'])) {
     showTitle($response['message'], 'title');
 } else {
@@ -9,7 +14,7 @@ if (!empty($_SESSION['logged_in'])) {
     showForm([
         'class'       => 'myForm',
         'formTitle'   => $msg,
-        'fields'      => $response[$response['page']],
+        'fields'      => $loginFields,
         'action'      => $response['page'],
         'post'        => $_POST ?? [],
         'emptyFields' => $response['empty'] ?? []

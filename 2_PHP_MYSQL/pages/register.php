@@ -1,4 +1,11 @@
 <?php
+$registerFields = [
+    'Naam',
+    'E-mail', 
+    'Wachtwoord',
+    'Herhaal wachtwoord'
+];
+
 if ($response['validated']) {
     showTitle($response['message'], 'title');
 } else {
@@ -9,7 +16,7 @@ if ($response['validated']) {
     showForm([
         'class'       => 'myForm',
         'formTitle'   => $msg,
-        'fields'      => $response[$response['page']],
+        'fields'      => $registerFields,
         'action'      => $response['page'],
         'post'        => $_POST ?? [],
         'emptyFields' => $response['empty'] ?? []

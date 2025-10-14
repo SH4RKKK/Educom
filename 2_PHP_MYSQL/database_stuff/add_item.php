@@ -1,4 +1,6 @@
 <?php
+//define('ALLOW_ACCESS',true);
+
 if (!defined('ALLOW_ACCESS')) {
     http_response_code(403);
     exit('Access denied.');
@@ -15,10 +17,10 @@ if (!$conn) {
     die('Connection failed: ' . mysqli_connect_error());
 }
 
-$name        = 'PER4M Whey Protein - Caramel Biscuit';
-$description = 'PER4M is a newly established brand that has one of the best qualities of protein powder';
-$price       = 45.99;
-$image_path = 'per4m-caramel-biscuit-whey-protein-powder-2kg-1_1200x.webp';
+$name        = 'Chocolate Whey';
+$description = 'A cheap alternative whey protein that has slightly worse macros';
+$price       = 29.99;
+$image_path = '2.avif';
 
 $stmt = mysqli_prepare($conn,
     "INSERT INTO items (name, description, price, image_path) VALUES (?, ?, ?, ?)");
