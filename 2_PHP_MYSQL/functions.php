@@ -5,8 +5,6 @@ function openHTML(): void {
 }
 
 //Makes the head part of the HTML document
-//$path is a string to the path of the CSS-file
-//$title is a string that is the title of the page
 function makeHead(string $path,string $title): void {
 
     if (!file_exists($path)) {
@@ -23,19 +21,16 @@ function openBody(): void {
 }
 
 //Open div
-function openDiv($class = ''): void {
+function openDiv($class = ''): void { //Use this type of argument
     echo '<div' . ($class ? ' class="' . $class . '"' : '') . '>';
 }
 
 //Show title
-//$title is the title that you want to show on the page
-//$class is the style-class you want to use for the title
 function showTitle(string $title,string $class): void {
     echo '<h1 class="'. $class . '">' . $title . '</h1>';
 }
 
 //Show list of options
-//$class is the style-class you want to use for the list
 //$options is an array of strings that are the options
 function showListOfOptions(string $class,array $options): void {
     echo '<ul class="'. $class . '">';
@@ -51,14 +46,12 @@ function showListOfOptions(string $class,array $options): void {
 }
 
 //Show message
-//$message is the message you want to present in the body
 function showMessage(string $message): void {
     echo '<p>' . $message . '</p>';
 }
 
 //Validate input of form by checking if they are empty
-//Option to show the input if $showInput is true
-//return true if all fields are filled else return false
+//Returns all empty fields
 function inputValidationForm(array $post) : array {
     $empty = [];
 
@@ -72,27 +65,24 @@ function inputValidationForm(array $post) : array {
 }
 
 //Build the form with or without POST data
-//$class is the class-style used for the form
-//$formTitle is the title of the 
-//$fiels is an array of strings that are the forms
-//function showForm(string $class, string $formTitle, array $fields, string $action, array $post = [], array $emptyFields = []): void {
+//    showForm([
+//        'class'       => ,
+//        'formTitle'   => ,
+//        'fields'      => ,
+//        'action'      => ,
+//        'post'        =>  ?? [],
+//        'emptyFields' =>  ?? []
+//    ]);
 function showForm(array $config): void {
-    $class       = $config['class'];
-    $formTitle   = $config['formTitle'];
-    $fields      = $config['fields'];
-    $action      = $config['action'];
-    $post        = $config['post'];
-    $emptyFields = $config['emptyFields'];
+    echo '<form class="' . $config['class'] . '" method="post" action="index.php">';
+    echo '<legend><h2>' . $config['formTitle'] . ':</h2></legend>';
+    echo '<input type="hidden" name="page" value="' . $config['action'] . '">';
 
-    echo '<form class="' . $class . '" method="post" action="index.php">';
-    echo '<legend><h2>' . $formTitle . ':</h2></legend>';
-    echo '<input type="hidden" name="page" value="' . $action . '">';
-
-    foreach ($fields as $field) {
+    foreach ($config['fields'] as $field) {
         $cleanedField = slugify($field);
 
-        $info = htmlspecialchars(isset($post[$cleanedField]) ? $post[$cleanedField] : '',  ENT_QUOTES);
-        $isEmpty = in_array($cleanedField, $emptyFields);
+        $info = htmlspecialchars(isset($config['post'][$cleanedField]) ? $config['post'][$cleanedField] : '',  ENT_QUOTES);
+        $isEmpty = in_array($cleanedField, $config['emptyFields']);
 
         echo '<label for="' . $cleanedField . '">' . $field . ':</label>';
 
@@ -115,6 +105,7 @@ function showForm(array $config): void {
     echo '</form>';
 }
 
+//Close div
 function closeDiv(): void {
     echo '</div>';
 }
@@ -162,18 +153,6 @@ function slugify(string $text): string {
     return $text;
 }
 
-//Connect to database
-function connectDataBase(array $dataBase) {
-    $conn = mysqli_connect(
-        $dataBase['servername'],
-        $dataBase['username'],
-        $dataBase['password'],
-        $dataBase['dbName']
-    );
-
-    return $conn;
-}
-
 //Check whether given email exists in database
 function checkEmail(mysqli $conn, string $email): array {
 
@@ -182,38 +161,24 @@ function checkEmail(mysqli $conn, string $email): array {
              WHERE email = ? 
              LIMIT 1";
 
-    $stmt = mysqli_prepare($conn, $sql);
-
-    if (!$stmt) {
-        return [null, false, 'Error in statement: ' . mysqli_error($conn)];
-    }
-
-    if (!mysqli_stmt_bind_param($stmt, "s", $email)) {
-        $error = mysqli_stmt_error($stmt);
+    try {
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "s", $email);
+        mysqli_stmt_execute($stmt);
+        
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
+        
         mysqli_stmt_close($stmt);
-        return [null, false, "Error in binding: " . $error];
-    }
-
-    if (!mysqli_stmt_execute($stmt)) {
-        $error = mysqli_stmt_error($stmt);
-        mysqli_stmt_close($stmt);
-        return [null, false, "Error in execution: " . $error];
-    }
-
-    $result = mysqli_stmt_get_result($stmt);
-    $row = mysqli_fetch_assoc($result);
-
-    mysqli_stmt_close($stmt);
-
-    if ($row) {
-        return [$row, true, ''];
-    } else {
-        return [null, false, ''];
+        
+        return $row ? [$row, true, ''] : [null, false, ''];
+    } catch (mysqli_sql_exception $e) {
+        if (isset($stmt)) mysqli_stmt_close($stmt);
+        return [null, false, 'Error checking email: ' . $e];
     }
 }
 
 //Handle the input of the login
-//$conn is the connection to the user database
 //returns a message regarding how the login was handled
 function handleLogin(mysqli $conn,array $post) : string {
     $foundEmail = checkEmail($conn,$post['email']);
@@ -237,7 +202,6 @@ function handleLogin(mysqli $conn,array $post) : string {
 }
 
 //Handles the input from register
-//$conn is the connection to the user database
 //Returns whether register was successful as a boolean and also a message that contains an error message or success message
 function handleRegister(mysqli $conn,array $post): array {  
     $result = [
@@ -276,8 +240,6 @@ function handleRegister(mysqli $conn,array $post): array {
 }
 
 //Append newly registered user to the file
-//$path is the path to the users file
-//$submitted is the POST data that was submitted
 function appendUserToDatabase(mysqli $conn,array $data): array {
     $result = [
         'validated' => false, 
@@ -285,49 +247,44 @@ function appendUserToDatabase(mysqli $conn,array $data): array {
     ];
 
     $sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-    $stmt = mysqli_prepare($conn, $sql);
 
-    if (!$stmt) {
-        $result['message'] = 'Error in statement: ' . mysqli_error($conn);
-        return $result;
-    }
-
-    $hashedPassword = password_hash($data['wachtwoord'], PASSWORD_DEFAULT);
-
-    if (!mysqli_stmt_bind_param($stmt, "sss", $data['naam'],$data['email'],$hashedPassword)) {
-        $error = mysqli_stmt_error($stmt);
+    try {
+        $stmt = mysqli_prepare($conn, $sql);
+        $hashedPassword = password_hash($data['wachtwoord'], PASSWORD_DEFAULT);
+        
+        mysqli_stmt_bind_param($stmt, "sss", $data['naam'], $data['email'], $hashedPassword);
+        mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
-
-        $result['message'] = "Error in binding: " . $error;
-        return $result;
+        
+        $result['validated'] = true;
+    } catch (Throwable $e) {
+        if (isset($stmt)) mysqli_stmt_close($stmt);
+        $result['message'] = 'Error adding user: ' . $e;
     }
-
-    $result['validated'] = mysqli_stmt_execute($stmt);
-
-    if (!$result['validated']) {
-        $error = mysqli_stmt_error($stmt);
-        mysqli_stmt_close($stmt);
-
-        $result['message'] = "Error in execution: " . $error;
-        return $result;
-    }
-
-    mysqli_stmt_close($stmt);
+    
     return $result;
 }
 
-function fetchItems(mysqli $conn): array {
-    $sql = "SELECT id, name, description, price, image_path FROM items ORDER BY id ASC";
-    $result = mysqli_query($conn, $sql);
+function fetchItems (array &$result): void {
+
+    $sql = "SELECT id, name, price, image_path FROM items ORDER BY id ASC";
 
     $products = [];
-    if ($result && mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $products[] = $row;
-        }
-    }
+    try {
+        $resultQuery = mysqli_query($result['db'], $sql);
 
-    return $products;
+        if ($resultQuery && mysqli_num_rows($resultQuery) > 0) {
+            while ($row = mysqli_fetch_assoc($resultQuery)) {
+                $products[] = $row;
+            }
+            $result['items'] = $products;
+        } else {
+            $result['message'] = 'Database does not have items';
+        }
+
+    } catch (Throwable $e) {
+         $result['message'] = 'Get items query failed on database: ' . $e;
+    }
 }
 
 function showProducts(int $productPerPage, int $currentPage, array $products): void {
@@ -363,15 +320,5 @@ function showProducts(int $productPerPage, int $currentPage, array $products): v
     closeDiv();
 }
 
-function handleWebshopReq (array &$result): void {
-    $products = fetchItems($result['db']);
-    if(empty($products)) {
-        $result['message'] = 'Database does not have items';
-        mysqli_close($result['db']);
-        return;
-    }
 
-    $result['items'] = $products;
-    mysqli_close($result['db']);
-}
 ?>

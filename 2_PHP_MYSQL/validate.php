@@ -12,15 +12,21 @@ function validateRequest(array $request) : array {
     //POST
     if ($request['posted']) {
         $result['empty'] = inputValidationForm($_POST);
+        if(isset($_POST['email'])) $_POST['email'] = strtolower(trim($_POST['email']));
         
         if (!empty($result['empty'])) {
+            return $result;
+        }
+
+        if (!$result['db']) {
+            $result['message'] = 'DATABASE IS DOWN';
             return $result;
         }
 
         switch ($request['page']) {
             case 'webshop':
                 $_SESSION['webshoppage'] = (int)$_POST['webshoppage'];
-                handleWebshopReq($result);
+                fetchItems($result);
                 break;
             case 'order':
                 $itemId = (int)($_POST['item_id']);
@@ -36,26 +42,13 @@ function validateRequest(array $request) : array {
                     $_SESSION['orders'][$itemId] = $amount;
                 }
                 $result['page'] = 'webshop';
-                handleWebshopReq($result);
+                fetchItems($result);
                 break;
             case 'login':
+                $result['message'] = handleLogin($request['db'], $_POST);
+                break;
             case 'register':
-                $_POST['email'] = strtolower(trim($_POST['email']));
-
-                $conn = connectDataBase($request['userDatabase']);
-                
-                if (!$conn) {
-                    $result['message'] = "Connection failed: " . mysqli_connect_error();
-                    return $result;
-                }
-
-                if ($request['page'] === 'login') {
-                    $result['message'] = handleLogin($conn, $_POST);
-                } else {
-                    $result = array_merge($result, handleRegister($conn, $_POST));
-                }
-
-                mysqli_close($conn);
+                $result = array_merge($result, handleRegister($request['db'], $_POST));
                 break;
             default:
                 $result['validated'] = true;
@@ -73,7 +66,7 @@ function validateRequest(array $request) : array {
                 $result['page'] = 'login';
                 break;
             case 'webshop':
-                    handleWebshopReq($result);
+                    fetchItems($result);
                 break;
             default:
                 break;

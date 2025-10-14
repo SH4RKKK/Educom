@@ -7,25 +7,23 @@ require 'layout.php';
 //Files
 $pathToCSS = 'css/style.css';
 
-//Database
-$db = [
-    'servername' => 'localhost',
-    'username' => 'root',
-    'password' => '', //dont forget to remove before pushing
-    'dbName' => 'website',
-];
+//Get request data
+$request = getRequest();
 
 //Connect to database
 $request['db'] = false;
 try {
-    $conn = connectDataBase($db);
-    $request['db'] = $conn;
+    $request['db'] = mysqli_connect(
+        'localhost',
+        'root',
+        '', //dont forget to remove before pushing
+        'website'
+    );
 } catch (mysqli_sql_exception $e) {
     echo 'Connection failed: ' . $e;
 }
 
-$request = getRequest();
-
+//Options
 $request['menu'] = [
     'HOME',
     'ABOUT',
@@ -39,4 +37,8 @@ $response = validateRequest($request);
 
 $response['CSS'] = $pathToCSS;
 showResponse($response);
+
+if($response['db']) {
+    mysqli_close($response['db']);
+}
 ?>
