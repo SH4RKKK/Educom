@@ -1,10 +1,30 @@
 <?php
-//Open HTML
+
+//--------------HTML HELPER functions
 function openHTML(): void {
     echo '<html>';
 }
 
-//Makes the head part of the HTML document
+function closeHTML(): void {
+    echo '</html>';
+}
+
+function openBody(): void {
+    echo '<body>';
+}
+
+function closeBody(): void {
+    echo '</body>';
+}
+
+function openDiv(string $class = ''): void {
+    echo '<div' . ($class ? ' class="' . $class . '"' : '') . '>';
+}
+
+function closeDiv(): void {
+    echo '</div>';
+}
+
 function makeHead(string $path,string $title): void {
 
     if (!file_exists($path)) {
@@ -15,40 +35,368 @@ function makeHead(string $path,string $title): void {
     echo '<head><link rel="stylesheet" href="'. $path . '"><title>'. $title . '</title></head>';
 }
 
-//Open body
-function openBody(): void {
-    echo '<body><div class="content">';
+function showTitle(string $title,string $class = ''): void {
+    echo '<h1' . ($class ? ' class="' . $class . '"' : '') . '>' . $title . '</h1>';
 }
 
-//Open div
-function openDiv($class = ''): void { //Use this type of argument
-    echo '<div' . ($class ? ' class="' . $class . '"' : '') . '>';
+function makeFooter(): void {
+    echo '<footer>&copy ' . date("Y") . ' Saman Ahmad</footer>';
 }
 
-//Show title
-function showTitle(string $title,string $class): void {
-    echo '<h1 class="'. $class . '">' . $title . '</h1>';
+function showMessage(string $message, string $class = ''): void {
+    echo '<p' . ($class ? ' class="' . $class . '"' : '') . '>' . $message . '</p>';
 }
 
-//Show list of options
-//$options is an array of strings that are the options
-function showListOfOptions(string $class,array $options): void {
-    echo '<ul class="'. $class . '">';
+function makeActionField (string $page,string $class = ''): void {
+    echo '<a href="index.php?page=' . strtolower($page) . '"' . ($class ? ' class="' . $class . '"' : '') . '>';
+}
 
-    foreach ($options as $option) {
+function closeActionField(): void {
+    echo '</a>';
+}
 
-        $builder = '<li><a href="index.php?page='. strtolower($option) .'">' . $option;
+function openForm (string $class = ''): void {
+    echo '<form' . ($class ? ' class="' . $class . '"' : '') . ' method="post" action="index.php">';
+}
 
-        if (!empty($_SESSION['logged_in']) && $option === 'LOGOUT') $builder .= ' ' . htmlspecialchars($_SESSION['username'], ENT_QUOTES);
-        echo $builder.= '</a></li>';
+function closeForm (): void {
+    echo '</form>';
+}
+
+function assignHiddenType(array $fields): void {
+    foreach ($fields as $name => $value) {
+        echo '<input type="hidden" name="' . $name . '" value="' . $value . '">';
     }
+}
+
+//        [
+//            'name' => '',
+//            'desc' => '',
+//            'value' => '',
+//            'class' => ''
+//        ],
+function makeButton(array $button): void {
+    echo '<button type="submit"' . 
+    (!empty($button['name']) ? ' name="' . $button['name'] . '"' : '') .
+    (!empty($button['value']) ? ' value="' . $button['value'] . '"' : '') .
+    (!empty($button['class']) ? ' class="' . $button['class'] . '"' : '') . '>' .
+    ($button['desc'] ?? '') . '</button>';
+}
+
+
+function newLine (): void {
+    echo '<br>';
+}
+
+function openUnorderedList(string $class = '') {
+    echo '<ul' . ($class ? ' class="' . $class . '"' : '') . '>';
+}
+
+function closeUnorderedList(): void {
     echo '</ul>';
 }
 
-//Show message
-function showMessage(string $message): void {
-    echo '<p>' . $message . '</p>';
+function openList(): void {
+    echo '<li>';
 }
+
+function closeList(): void {
+    echo '</li>';
+}
+
+function openTable(string $class = ''): void {
+    echo '<table' . ($class ? ' class="' . $class . '"' : '') . '>';
+}
+
+function closeTable(): void {
+    echo '</table>';
+}
+
+function openTableBody(): void {
+    echo '<tbody>';
+}
+
+function closeTableBody(): void {
+    echo '</tbody>';
+}
+
+function openTableRow(): void {
+    echo '<tr>';
+}
+
+function closeTableRow(): void {
+    echo '</tr>';
+}
+
+function makeTableHeader(array $headers): void {
+    echo '<thead>';
+    openTableRow();
+    foreach ($headers as $header) {
+        echo '<th>' . $header . '</th>';
+    }
+    closeTableRow();
+    echo '</thead>';
+}
+
+function makeTableData(string $data = '',string $class = '',string $span = '',array $item = []): void {
+    echo '<td' . ($class ? ' class="' . $class . '"' : '') . '>';
+    if(!empty($item)) loadImage($item['image_path'], $item['name']);
+    echo $data;
+    if(!empty($span)) echo '<span>' . $span . '</span>';
+    echo '</td>';
+}
+
+function showSpan (string $msg,string $class = ''): void {
+    echo '<span' . ($class ? ' class="' . $class . '"' : '') . '>' . $msg . '</span>';
+}
+
+//Used for the cart table
+function makeSummaryRow(string $label, float $amount, string $class = ''): void {
+    openDiv($class);
+    showSpan($label);
+    showSpan('€' . number_format($amount, 2, ',', '.'));
+    closeDiv();
+}
+
+function loadImage(string $path,string $name,string $class = ''): void {
+    echo '<img src="images/' . $path . '" alt="'  . $name . '"' . ($class ? ' class="' . $class . '"' : '') . '>';
+}
+
+//Makes the fields used in a form
+function makeFields(bool $empty, string $field, string $info): void {
+    $inputClass = $empty ? 'error' : '';
+
+    if (str_contains($field,'wachtwoord')) {
+        echo '<input type="password" class="' . $inputClass . '" name="' . $field . '" value="' . $info . '" autocomplete="new-password">';
+    } elseif (str_contains($field,'amount')) {
+        echo '<input type="number" class="' . $inputClass . '" name="' . $field . '" min="1" value="1">';        
+    } else {
+        echo '<input type="text" class="' . $inputClass . '" name="' . $field . '" value="' . $info . '">';
+    }
+}
+
+//--------------HTML BUILDER functions
+//Show list of options based on $option
+function showListOfOptions(string $class = '',array $options): void {
+    openUnorderedList($class);
+
+    foreach ($options as $option) {
+
+        openList();
+        makeActionField($option);
+
+        if (!empty($_SESSION['logged_in']) && $option === 'LOGOUT') echo $option . ' ' . htmlspecialchars($_SESSION['username'], ENT_QUOTES);
+        else echo $option;
+
+        echo closeActionField();
+        closeList();
+    }
+    closeUnorderedList();
+}
+
+//Build a form with endless amount of options, below is every possible argument that is used
+// This for is used for Contact, Register, Login
+//    showForm([
+//        'class'       => ?? '',
+//        'formTitle'   => ?? '',
+//        'fields'      => [],
+//        'hidden'      => ['name' => 'value'], //can contain multiple entries
+//        'post'        =>  ?? [],
+//        'emptyFields' =>  ?? [],
+//        'button'      => [
+//            'name' => '',
+//            'desc' => '',
+//            'value' => '',
+//            'class' => ''
+//        ],
+//        'showLabel'   => ?? false,
+//        'addNewline'   => ?? false
+//    ]);
+function showForm(array $config): void {
+    openForm($config['class'] ?? '');
+
+    $builder = '';
+    if(!empty($config['formTitle'])) $builder = '<legend>' . showTitle($config['formTitle']) . '</legend>';
+    echo $builder;
+
+    assignHiddenType($config['hidden']);
+
+    foreach ($config['fields'] as $field) {
+        $cleanedField = slugify($field);
+        if(!empty($config['emptyFields'])) $isEmpty = in_array($cleanedField, $config['emptyFields']);
+
+        if($config['showLabel'] ?? false) echo '<label for="' . $cleanedField . '">' . $field . ':</label>';
+
+        makeFields($isEmpty ?? false,$cleanedField,htmlspecialchars(isset($config['post'][$cleanedField]) ? $config['post'][$cleanedField] : '',  ENT_QUOTES));
+
+        if ($isEmpty ?? false) {
+            showSpan('Veld is leeg!','error');
+        }
+
+        if($config['addNewline'] ?? false) newLine();
+    }
+
+    makeButton($config['button']);
+    closeForm();
+}
+
+// Function used to show products on the webshop page
+function showProducts(array $productsToShow): void {
+    openDiv('page');
+    foreach($productsToShow as $p) {
+        openDiv('card');
+        
+        makeActionField('product&id=' . (int)$p['id'] . '"', 'card-link');
+        loadImage($p['image_path'],$p['name']);
+        openDiv('card-content');
+        showMessage($p['name'] . ' - €' . number_format($p['price'], 2, ',', ''));
+        closeDiv();
+        closeActionField();
+
+        openDiv('actions');
+        if(!empty($_SESSION['logged_in'])) {
+
+            showForm([
+                'fields' => ['amount'],
+                'button' => [
+                    'desc' => 'Bestel Nu!'
+                ],
+                'hidden' => [
+                    'page' => 'order',
+                    'item_id' => (int)$p['id']
+                ]]);
+            
+        } else {
+            makeActionField('login');
+            echo 'Login om te bestellen!';
+            closeActionField();
+        }
+
+        closeDiv();
+        closeDiv();
+    }
+    closeDiv();
+}
+
+//The pagination needed if products are more than what can be posted on the page
+function showPagination(int $currentPage, int $totalPages): void {
+    openDiv('pagination-container');
+
+    openForm();
+    assignHiddenType(['page' => 'webshop']);
+
+    openDiv('pagination');
+    
+    for ($i = 1; $i <= $totalPages; $i++) {
+        $activeClass = $i === $currentPage ? ' active' : '';
+
+        makeButton([
+            'name' => 'webshoppage',
+            'desc' => $i,
+            'value' => $i,
+            'class' => 'page-btn' . $activeClass,
+        ]);
+    }
+    
+    closeDiv();
+    closeForm();
+    closeDiv();
+}
+
+//Function used to show detailed information of a product
+function showProductDetail(array $product): void {
+    openDiv('product-detail');
+    
+    openDiv('product-image-section');
+    loadImage($product['image_path'], $product['name']);
+    closeDiv();
+    
+    openDiv('product-info-section');
+    showTitle($product['name']);
+    
+    showMessage('€' . number_format($product['price'], 2, ',', ''),'product-price');
+    if (!empty($product['description'])) showMessage(htmlspecialchars($product['description']),'product-description');
+    
+    if(!empty($_SESSION['logged_in'])) {
+
+        showForm( [            
+            'class' => 'product-order-form',
+            'fields' => ['amount'],
+            'button' => [
+                'desc' => 'Bestel Nu!'
+            ],
+            'hidden' => [
+                'page' => 'order',
+                'id' => (int)$product['id'],
+                'item_id' => (int)$product['id']
+            ]]);
+    } else {
+        makeActionField('login','login-prompt');
+        echo 'Login om te bestellen!';
+        closeActionField();
+    }
+    
+    closeDiv();
+    closeDiv();
+}
+
+//Function used to show the cart page
+function showCart(array $cartItems,float $shipping): void {
+    $total = 0;
+
+    openDiv('cart-wrapper');
+    showTitle('Winkel mandje');
+
+    openDiv('cart-container');
+    openDiv('cart-items');
+    
+    openTable('cart-table');
+    makeTableHeader(['Product', 'Prijs', 'Aantal', 'Subtotaal']);
+    openTableBody();
+    
+    foreach ($cartItems as $item) {
+        $subtotal = $item['price'] * $item['amount'];
+        $total += $subtotal;
+        
+        openTableRow();
+
+        makeTableData('', 'cart-product', htmlspecialchars($item['name']), $item);
+        makeTableData('€' . number_format($item['price'], 2, ',', '.'));
+        makeTableData((string)(int)$item['amount']);
+        makeTableData('€' . number_format($subtotal, 2, ',', '.'));
+        
+        closeTableRow();
+    }
+    
+    closeTableBody();
+    closeTable();
+    closeDiv();
+
+    openDiv('cart-summary');
+
+    showTitle('Totalen');
+    makeSummaryRow('Subtotaal', $total,'summary-row');
+    makeSummaryRow('Shipping', $shipping,'summary-row');
+    $total += $shipping;
+    makeSummaryRow('Totaal', $total, 'summary-total');
+
+    showForm([
+        'fields' => [],
+        'button' => [
+            'desc' => 'Proceed to checkout',
+            'class' => 'checkout-btn'
+        ],
+        'hidden' => ['page' => 'cart'],
+        'class' => 'checkout-form'
+    ]);
+
+    closeDiv();
+    closeDiv();
+    closeDiv();
+}
+
+
+//--------------LOGIC functions
 
 //Validate input of form by checking if they are empty
 //Returns all empty fields
@@ -64,69 +412,8 @@ function inputValidationForm(array $post) : array {
     return $empty;
 }
 
-//Build the form with or without POST data
-//    showForm([
-//        'class'       => ,
-//        'formTitle'   => ,
-//        'fields'      => ,
-//        'action'      => ,
-//        'post'        =>  ?? [],
-//        'emptyFields' =>  ?? []
-//    ]);
-function showForm(array $config): void {
-    echo '<form class="' . $config['class'] . '" method="post" action="index.php">';
-    echo '<legend><h2>' . $config['formTitle'] . ':</h2></legend>';
-    echo '<input type="hidden" name="page" value="' . $config['action'] . '">';
-
-    foreach ($config['fields'] as $field) {
-        $cleanedField = slugify($field);
-
-        $info = htmlspecialchars(isset($config['post'][$cleanedField]) ? $config['post'][$cleanedField] : '',  ENT_QUOTES);
-        $isEmpty = in_array($cleanedField, $config['emptyFields']);
-
-        echo '<label for="' . $cleanedField . '">' . $field . ':</label>';
-
-        $inputClass = $isEmpty ? 'error' : '';
-
-        if (str_contains($cleanedField,'wachtwoord')) {
-            echo '<input type="password" class="' . $inputClass . '" id="' . $cleanedField . '" name="' . $cleanedField . '" value="' . $info . '" autocomplete="new-password">';
-        } else {
-            echo '<input type="text" class="' . $inputClass . '" id="' . $cleanedField . '" name="' . $cleanedField . '" value="' . $info . '">';
-        }
-
-        if ($isEmpty) {
-        echo '<span class="error">Veld is leeg!</span>';
-        }
-
-        echo '<br>';
-    }
-
-    echo '<input type="submit" value="Verstuur">';
-    echo '</form>';
-}
-
-//Close div
-function closeDiv(): void {
-    echo '</div>';
-}
-
-//Close body
-function closeBody(): void {
-    echo '</div></body>';
-}
-
-//Make the footer of the page
-function makeFooter(): void {
-    echo '<footer>&copy ' . date("Y") . ' Saman Ahmad</footer>';
-}
-
-//Close HTML
-function closeHTML(): void {
-    echo '</html>';
-}
-
 //Function to check whether the given request to the server is a POST or GET
-//It also returns the page that the request was originated from
+//It also returns the page-key that the request was originated from
 function getRequest() : array
 {
     $posted = ($_SERVER['REQUEST_METHOD']==='POST');
@@ -240,7 +527,7 @@ function handleRegister(mysqli $conn,array $post): array {
     return $result;
 }
 
-//Append newly registered user to the file
+//Append newly registered user to database
 function appendUserToDatabase(mysqli $conn,array $data): array {
     $result = [
         'validated' => false, 
@@ -266,6 +553,7 @@ function appendUserToDatabase(mysqli $conn,array $data): array {
     return $result;
 }
 
+//Fetch all items from database
 function fetchItems (array &$result): void {
 
     $sql = "SELECT id, name, price, image_path FROM items ORDER BY id ASC";
@@ -288,6 +576,7 @@ function fetchItems (array &$result): void {
     }
 }
 
+//Fetch all information of an item for product page
 function fetchItemDetails (array &$result, int $itemID): void {
     $sql  = "SELECT * 
              FROM items 
@@ -308,80 +597,7 @@ function fetchItemDetails (array &$result, int $itemID): void {
     }
 }
 
-//Fix in future + CSS
-function showProducts(array $productsToShow): void {
-    openDiv('page');
-    foreach($productsToShow as $p) {
-        openDiv('card');
-        
-        echo '<a href="index.php?page=product&id=' . (int)$p['id'] . '" class="card-link">';
-        echo '<img src="images/' . $p['image_path'] . '" alt="'  . $p['name'] . '">';
-        echo '<div class="card-content">';
-        echo $p['name'] . ' - €' . number_format($p['price'], 2, ',', '');
-        echo '</div>';
-        echo '</a>';
-        
-        openDiv('actions');
-        if(!empty($_SESSION['logged_in'])) {
-            echo '<form method="post" action="index.php">';
-            echo '<input type="hidden" name="page" value="order">';
-            echo '<input type="hidden" name="item_id" value="' . (int)$p['id'] . '">';
-            echo '<input type="number" name="amount" min="1" value="1">';
-            echo '<button type="submit">Order Now</button>';
-            echo '</form>';
-        } else {
-            echo '<a href="index.php?page=login">Login to order!</a>';
-        }
-        closeDiv();
-        closeDiv();
-    }
-    closeDiv();
-}
-
-//Fix in future + CSS
-function showPagination(int $currentPage, int $totalPages): void {
-    echo '<form method="post" style="text-align:center; margin-top:20px;" action="index.php">';
-    echo '<input type="hidden" name="page" value="webshop">';
-    
-    for ($i = 1; $i <= $totalPages; $i++) {
-        $disabled = $i === $currentPage ? 'disabled style="font-weight:bold;"' : '';
-        echo '<button type="submit" name="webshoppage" value="' . $i . '" ' . $disabled . '>';
-        echo $i;
-        echo '</button>';
-    }
-    echo '</form>';
-}
-
-function showProductDetail(array $product): void {
-    openDiv('product-detail');
-    
-    openDiv('product-image-section');
-    echo '<img src="images/' . $product['image_path'] . '" alt="' . $product['name'] . '">';
-    closeDiv();
-    
-    openDiv('product-info-section');
-    echo '<h2>' . $product['name'] . '</h2>';
-    echo '<p class="product-price">€' . number_format($product['price'], 2, ',', '') . '</p>';
-    
-    if (!empty($product['description'])) {
-        echo '<p class="product-description">' . htmlspecialchars($product['description']) . '</p>';
-    }
-    
-    if (!empty($_SESSION['logged_in'])) {
-        echo '<form method="post" action="index.php" class="product-order-form">';
-        echo '<input type="hidden" name="page" value="order">';
-        echo '<input type="hidden" name="item_id" value="' . (int)$product['id'] . '">';
-        echo '<input type="number" name="amount" min="1" value="1">';
-        echo '<button type="submit">Order Now</button>';
-        echo '</form>';
-    } else {
-        echo '<a href="index.php?page=login" class="login-prompt">Login to order!</a>';
-    }
-    
-    closeDiv();
-    closeDiv();
-}
-
+//Combine items and orders to figure out how much of what has been ordered
 function appendAmountToItem (array $session, array $items): array {
     return array_filter(array_map(function($product) use ($session) {
     $id = $product['id'];
@@ -393,52 +609,7 @@ function appendAmountToItem (array $session, array $items): array {
 }, $items));
 }
 
-//Fix in future + CSS
-function showCart(array $cartItems): void {
-    
-    $total = 0;
-    
-    echo '<div class="cart-wrapper">';
-    echo '<h1 class="cart-title">Shopping Cart</h1>';
-    echo '<div class="cart-container">';
-    echo '<div class="cart-items">';
-    echo '<table class="cart-table">';
-    echo '<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th></tr></thead>';
-    echo '<tbody>';
-    
-    foreach ($cartItems as $item) {
-        $subtotal = $item['price'] * $item['amount'];
-        $total += $subtotal;
-        
-        echo '<tr>';
-        echo '<td class="cart-product">';
-        if (!empty($item['image_path'])) {
-            echo '<img src="images/' . htmlspecialchars($item['image_path']) . '" alt="' . htmlspecialchars($item['name']) . '">';
-        }
-        echo '<span>' . htmlspecialchars($item['name']) . '</span>';
-        echo '</td>';
-        echo '<td>€' . number_format($item['price'], 2, ',', '.') . '</td>';
-        echo '<td>' . (int)$item['amount'] . '</td>';
-        echo '<td>€' . number_format($subtotal, 2, ',', '.') . '</td>';
-        echo '</tr>';
-    }
-    
-    $shipping = 5.95;
-    echo '</tbody></table></div>';
-    
-    echo '<div class="cart-summary">';
-    echo '<h3>Cart totals</h3>';
-    echo '<div class="summary-row"><span>Subtotal</span><span>€' . number_format($total, 2, ',', '.') . '</span></div>';
-    echo '<div class="summary-row"><span>Shipping</span><span>€' . number_format($shipping, 2, ',', '.') . '</span></div>';
-    $total += $shipping;
-    echo '<div class="summary-total"><span>Total</span><span>€' . number_format($total, 2, ',', '.') . '</span></div>';
-    echo '<form method="post" action="index.php">';
-    echo '<input type="hidden" name="page" value="cart">';
-    echo '<button type="submit" class="checkout-btn">Proceed to checkout</button>';
-    echo '</form>';
-    echo '</div></div></div>';
-}
-
+//Append an order to the database, first to orders then order_item
 function appendOrderToDatabase(mysqli $conn, int $userId, array $cartItems): array {
     $result = [
         'validated' => false, 
@@ -476,7 +647,7 @@ function appendOrderToDatabase(mysqli $conn, int $userId, array $cartItems): arr
         mysqli_commit($conn);
         
         $result['validated'] = true;
-        $result['message'] = 'Order placed successfully! Order #' . $orderId;
+        $result['message'] = 'Order geplaatst! Order #' . $orderId;
         unset($_SESSION['orders']);
         
     } catch (Throwable $e) {

@@ -341,7 +341,7 @@ footer {
 .product-price {
   font-size: 28px;
   font-weight: 600;
-  color: #28a745;
+  color: darkgreen;
   margin: 0 0 20px;
 }
 
@@ -385,4 +385,35 @@ footer {
 .product-order-form button:hover,
 .login-prompt:hover {
   background-color: #1f8c39;
+}
+
+.pagination-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination {
+    display: inline-flex;
+    gap: 5px;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.page-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.page-btn.active {
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    cursor: default;
+    pointer-events: none;
 }

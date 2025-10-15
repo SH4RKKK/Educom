@@ -1,4 +1,5 @@
 <?php
-showMessage('Welkom op mijn eerste website');
-closeDiv();
+function home(): void {
+    showMessage('Welkom op mijn eerste website');
+}
 ?>

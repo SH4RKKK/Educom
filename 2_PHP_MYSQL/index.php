@@ -4,6 +4,16 @@ require 'functions.php';
 require 'validate.php';
 require 'layout.php';
 
+//pages
+require 'pages/about.php';
+require 'pages/cart.php';
+require 'pages/contact.php';
+require 'pages/home.php';
+require 'pages/login.php';
+require 'pages/product.php';
+require 'pages/register.php';
+require 'pages/webshop.php';
+
 //Files
 $pathToCSS = 'css/style.css';
 

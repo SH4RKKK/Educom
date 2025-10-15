@@ -1,19 +1,11 @@
 <?php
-$orders = $_SESSION['orders'] ?? [];
-$products = $response['items'];
-
-$cartItems = appendAmountToItem($orders, $products);
-
-if (empty($response['message'])) {
-    if($cartItems) {
-        showCart($cartItems);
+function cart(array $response): void {
+    if (!empty($response['message'])) {
+        showMessage($response['message']);
+    } elseif ($response['item']) {
+        showCart($response['item'], 5.95);
     } else {
-        echo '<div class="cart-wrapper">';
         showMessage('Winkelmandje is leeg');
-        echo '</div>';
     }
-} else {
-    showMessage($response['message']);
 }
-closeDiv();
 ?>

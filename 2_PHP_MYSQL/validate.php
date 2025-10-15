@@ -8,7 +8,8 @@ function validateRequest(array $request) : array {
         'validated' => false,
         'empty' => [],
         'items' => [],
-        'item' => []
+        'item' => [],
+        'cart' => []
     ];
 
     //POST
@@ -28,8 +29,8 @@ function validateRequest(array $request) : array {
         switch ($request['page']) {
             case 'cart':
                 fetchItems($result);
-                $cartItems = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
-                $result = array_merge($result, appendOrderToDatabase($request['db'], $_SESSION['user_id'], $cartItems));
+                $result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
+                $result = array_merge($result, appendOrderToDatabase($request['db'], $_SESSION['user_id'], $result['cart']));
                 break;
             case 'webshop':
                 $_SESSION['webshoppage'] = (int)$_POST['webshoppage'];
@@ -48,8 +49,14 @@ function validateRequest(array $request) : array {
                 } else {
                     $_SESSION['orders'][$itemId] = $amount;
                 }
-                $result['page'] = 'webshop';
-                fetchItems($result);
+
+                if (isset($_POST['id'])) {
+                    $result['page'] = 'product';
+                    fetchItemDetails($result, (int)$_POST['id']);
+                } else {
+                    $result['page'] = 'webshop';
+                    fetchItems($result);
+                }
                 break;
             case 'login':
                 $result['message'] = handleLogin($request['db'], $_POST);
