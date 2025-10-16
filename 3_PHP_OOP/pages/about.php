@@ -2,7 +2,7 @@
 require_once '../abstract/body.php';
 require_once '../menu/MainMenu.php';
 
-class Home extends BodyContent {
+class About extends BodyContent {
     private string $title;
     private string $classTitle;
     private Menu $menu;
@@ -12,11 +12,13 @@ class Home extends BodyContent {
         $this->classTitle = 'title';
         $this->menu = new MainMenu();
     }
-
+    
     protected function render(): void {
         HtmlBuilder::showTitle($this->title, $this->classTitle);
         $this->menu->show();
-        HtmlBuilder::showMessage('Welkom op mijn eerste website');
+        HtmlBuilder::showMessage('Ik ben Saman en ik vind software development leuk.');
+        HtmlBuilder::showMessage('In mijn vrije tijd doe ik veel aan sporten zoals powerliften, streetliften, en calisthenics.');
+        HtmlBuilder::showMessage('Daarnaast game ik ook nog als er vrije tijd over blijft!');
     }
 }
 ?>

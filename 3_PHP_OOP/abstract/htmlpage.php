@@ -1,70 +1,90 @@
 .<?php 
- abstract class htmlPage
- {
-     private $title = 'Saman Whey';
-     private $author = 'Saman Ahmad';
-     
- // PUBLIC
-     public function __construct(string $title, string $author)
-     {
-         $this->title = $title;
-         $this->author = $author;
-     }
- 
-     public function show()
-     {
-         $this->beginDoc();
-         $this->beginHead();
-         $this->showHeadContent();
-         $this->endHead();
-         $this->beginBody();
-         $this->showBodyContent();
-         $this->endBody();
-         $this->endDoc();
-     }  
-       
- // PROTECTED
-     protected function beginDoc(): void
-     { 
-         echo '<!DOCTYPE html>'.PHP_EOL.'<html>'; 
-     }
- 
-     protected function showHeadContent(): void
-     { 
-         if ($this->title) 
-             echo '<title>'.$this->title.'</title>'.PHP_EOL; 
-         if ($this->author) 
-             echo '<meta name="author" content="'.$this->author.'" />'.PHP_EOL; 
-     }
+require_once '../utility/htmlelements.php';
+require_once 'body.php';
 
-// ABSTRACT METHOD - Children MUST implement
-     abstract protected function showBodyContent(): void;
+class htmlPage
+{ 
+    // PRIVATE
+    private $title;
+    private $author;
+    private $pathToCSS;
+    private $class;
+    protected BodyContent $bodyContent;
 
- //======================================================
- // PRIVATE
- //======================================================
-     private function beginHead() 
-     { 
-         echo '<head>'.PHP_EOL; 
-     }
- 
-     private function endHead()
-     { 
-         echo '</head>'.PHP_EOL; 
-     }
-     
-     private function beginBody() 
-     { 
-         echo '<body>'.PHP_EOL; 
-     }
- 
-     private function endBody() 
-     { 
-         echo '</body>'.PHP_EOL; 
-     }
-     
-     private function endDoc() 
-     { 
-         echo '</html>'.PHP_EOL; 
-     }
- }
+    // PUBLIC
+    public function __construct(string $title, string $author, string $pathToCSS, string $class = '', BodyContent $bodyContent)
+    {
+        $this->title = $title;
+        $this->author = $author;
+        $this->pathToCSS = $pathToCSS;
+        $this->class = $class;
+        $this->bodyContent = $bodyContent;
+    }
+
+    public final function show(): void 
+    {
+        $this->openHTML();
+        $this->openHead();
+        $this->showHeadContent();
+        $this->closeHead();
+        $this->openBody();
+        HtmlBuilder::openDiv($this->class);
+        $this->showBodyContent();
+        HtmlBuilder::closeDiv();
+        $this->openFooter();
+        $this->showFooterContent();
+        $this->closeFooter();
+        $this->closeBody();
+        $this->closeHTML();
+    }  
+
+    // PROTECTED
+    protected function showHeadContent(): void
+    { 
+        if ($this->title) echo '<title>'.StringHelper::escape($this->title).'</title>'; 
+        if ($this->author) echo '<meta name="author" content="'.StringHelper::escape($this->author).'" />'; 
+        if ($this->pathToCSS) echo '<link rel="stylesheet" href="'.StringHelper::escape($this->pathToCSS).'">';
+    }
+
+    protected function showFooterContent(): void
+    { 
+        echo '&copy ' . date("Y") . ' ' . StringHelper::escape($this->author);
+    }
+    
+    // PRIVATE
+    private function showBodyContent(): void {
+        $this->bodyContent->show();
+    }
+
+    private function openHTML(): void {
+        echo '<!DOCTYPE html><html>'; 
+    }
+
+    private function closeHTML(): void {
+        echo '</html>';
+    }
+
+    private function openBody(): void {
+        echo '<body>';
+    }
+
+    private function closeBody(): void {
+        echo '</body>';
+    }
+
+    private function openHead(): void {
+        echo '<head>';
+    }
+
+    private function closeHead(): void {
+        echo '</head>';
+    }
+
+    private function openFooter(): void {
+        echo '<footer>';
+    }
+
+    private function closeFooter(): void {
+        echo '</footer>';
+    }
+}

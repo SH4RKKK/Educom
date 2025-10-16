@@ -154,7 +154,9 @@ footer {
 }
 
 .myForm input[type="text"],
-.myForm input[type="password"] {
+.myForm input[type="email"],
+.myForm input[type="password"],
+.myForm textarea {
   width: 400px;
   margin-bottom: 14px;
   padding: 7px 10px;
@@ -164,13 +166,22 @@ footer {
   transition: border-color .2s;
 }
 
+.myForm textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
 .myForm input[type="text"]:focus,
-.myForm input[type="password"]:focus {
+.myForm input[type="email"]:focus,
+.myForm input[type="password"]:focus,
+.myForm textarea:focus {
   outline: none;
   border-color: #007bff;
 }
 
-.myForm input.error {
+.myForm input.error,
+.myForm textarea.error {
   border: 2px solid #dc3545;
   background-color: #ffeaea;
 }
