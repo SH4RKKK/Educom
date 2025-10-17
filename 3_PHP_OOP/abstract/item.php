@@ -1,19 +1,19 @@
 <?php
 require_once '../utility/htmlelements.php';
 
-abstract class BodyContent {
+abstract class Item {
+    protected $id;
+    protected $name;
+    protected $description;
+    protected $price;
+    protected $imagePath;
+    
     // PUBLIC
     public function __construct() {
         $this->initialize();
     }
-    
-    // Main render
-    public final function show(): void {
-        $this->render();
-    }
 
     // ABSTRACT
     abstract protected function initialize(): void;
-    abstract protected function render(): void;
 }
 ?>

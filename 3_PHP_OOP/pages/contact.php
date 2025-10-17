@@ -1,27 +1,33 @@
 <?php
 require_once '../abstract/body.php';
-require_once '../menu/MainMenu.php';
+
+require_once '../traits/menuhandler.php';
+require_once '../base/MainMenu.php';
 
 require_once '../traits/formhandler.php';
-require_once '../forms/contact.php';
+require_once '../forms/contactform.php';
+
+require_once '../traits/title.php';
 
 class Contact extends BodyContent {
     use FormHandler;
-    private string $title;
-    private string $classTitle;
-    private Menu $menu;
+    use MenuHandler;
+    use Title;
 
     protected function initialize(): void {
-        $this->title = !empty($_SESSION['logged_in']) ? 'Hello ' . StringHelper::escape($_SESSION['username']) : 'Hello Stranger';
-        $this->classTitle = 'title';
+        $this->title = [
+            'text' => !empty($_SESSION['logged_in']) ? 'Hello ' . HtmlBuilder::escape($_SESSION['username']) : 'Hello Stranger',
+            'class' => 'title'
+        ];
+
         $this->menu = new MainMenu();
-        $this->form = new ContactForm();
+        $this->form = new ContactForm($_POST);
     }
     
     protected function render(): void {
-        HtmlBuilder::showTitle($this->title, $this->classTitle);
-        $this->menu->show();
-        $this->form->render();
+        $this->renderTitle();
+        $this->renderMenu();
+        $this->renderForm();
     }
 }
 ?>

@@ -1,17 +1,17 @@
 <?php
 require_once '../base/htmlPage.php';
-require_once '../pages/contact.php';
+require_once '../pages/login.php';
 $test = $_GET['test'] ?? 1;
 
 switch ($test) {
     case 1:
-    $contact = new Contact();
+    $login = new Login();
     $page = new htmlPage(
         "Saman's Whey",
         'Saman Ahmad',
         '../css/style.css',
         'content',
-        $contact
+        $login
     );
 
     $page->show();
@@ -19,20 +19,19 @@ switch ($test) {
 
     case 2: //missing field
         $fakePostData = [
-            'naam' => 'Some Body',
-            'email' => '',
-            'bericht' => 'Dit is een test bericht!'
+            'email' => 'some@body.com',
+            'wachtwoord' => '',
         ];
         
         $_POST = $fakePostData;
 
-        $contact = new Contact();
+        $login = new Login();
         $page = new htmlPage(
             "Saman's Whey",
             'Saman Ahmad',
             '../css/style.css',
             'content',
-            $contact
+            $login
         );
         
         $page->show();
@@ -40,20 +39,19 @@ switch ($test) {
 
     case 3: //all fields filled
         $fakePostData = [
-            'naam' => 'Some Body',
             'email' => 'some@body.com',
-            'bericht' => 'Dit is een test bericht!'
+            'wachtwoord' => '123',
         ];
         
         $_POST = $fakePostData;
 
-        $contact = new Contact();
+        $login = new Login();
         $page = new htmlPage(
             "Saman's Whey",
             'Saman Ahmad',
             '../css/style.css',
             'content',
-            $contact
+            $login
         );
         
         $page->show();

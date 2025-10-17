@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/htmlPage.php';
+require_once '../base/htmlPage.php';
 require_once '../pages/home.php';
 
 $home = new Home();

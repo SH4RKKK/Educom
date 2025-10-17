@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/htmlPage.php';
+require_once '../base/htmlPage.php';
 require_once '../pages/about.php';
 
 $about = new About();

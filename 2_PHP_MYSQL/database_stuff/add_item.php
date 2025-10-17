@@ -17,10 +17,10 @@ if (!$conn) {
     die('Connection failed: ' . mysqli_connect_error());
 }
 
-$name        = 'Chocolate Whey';
+$name        = 'GOLD STANDARD Double Chocolate';
 $description = 'A cheap alternative whey protein that has slightly worse macros';
-$price       = 29.99;
-$image_path = '2.avif';
+$price       = 49.99;
+$image_path = '71OsEAdPuZL._UF1000,1000_QL80_.jpg';
 
 $stmt = mysqli_prepare($conn,
     "INSERT INTO items (name, description, price, image_path) VALUES (?, ?, ?, ?)");

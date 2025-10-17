@@ -4,33 +4,30 @@ require_once '../abstract/body.php';
 require_once '../traits/menuhandler.php';
 require_once '../base/MainMenu.php';
 
-require_once '../traits/bodymessage.php';
+require_once '../traits/formhandler.php';
+require_once '../forms/registerform.php';
 
 require_once '../traits/title.php';
 
-class About extends BodyContent {
+class Register extends BodyContent {
+    use FormHandler;
     use MenuHandler;
-    use BodyMessage;
     use Title;
-    
+
     protected function initialize(): void {
         $this->title = [
             'text' => !empty($_SESSION['logged_in']) ? 'Hello ' . HtmlBuilder::escape($_SESSION['username']) : 'Hello Stranger',
             'class' => 'title'
         ];
-
+        
         $this->menu = new MainMenu();
-        $this->bodyMessage = [
-            ['text' => 'Ik ben Saman en ik vind software development leuk.'],
-            ['text' => 'In mijn vrije tijd doe ik veel aan sporten zoals powerliften, streetliften, en calisthenics.'],
-            ['text' => 'Daarnaast game ik ook nog als er vrije tijd over blijft!']
-        ];
+        $this->form = new RegisterForm($_POST);
     }
     
     protected function render(): void {
         $this->renderTitle();
         $this->renderMenu();
-        $this->renderMessage();
+        $this->renderForm();
     }
 }
 ?>

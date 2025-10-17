@@ -29,7 +29,7 @@ abstract class Menu {
     
     // PROTECTED -- could be private?
     protected function openUnorderedList(string $class = ''): void {
-        echo '<ul' . ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<ul' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function closeUnorderedList(): void {

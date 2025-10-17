@@ -4,13 +4,14 @@ require_once '../abstract/body.php';
 require_once '../traits/menuhandler.php';
 require_once '../base/MainMenu.php';
 
-require_once '../traits/bodymessage.php';
+require_once '../traits/paginationhandler.php';
+require_once '../base/pagination.php';
 
 require_once '../traits/title.php';
 
-class About extends BodyContent {
+class Webshop extends BodyContent {
     use MenuHandler;
-    use BodyMessage;
+    use PangiationHandler;
     use Title;
     
     protected function initialize(): void {
@@ -20,17 +21,15 @@ class About extends BodyContent {
         ];
 
         $this->menu = new MainMenu();
-        $this->bodyMessage = [
-            ['text' => 'Ik ben Saman en ik vind software development leuk.'],
-            ['text' => 'In mijn vrije tijd doe ik veel aan sporten zoals powerliften, streetliften, en calisthenics.'],
-            ['text' => 'Daarnaast game ik ook nog als er vrije tijd over blijft!']
-        ];
+        
+        //Testin variables need to set them in init and store them
+        $this->pagination = new Pagination(5,2,'webshop','pagination', 'index');
     }
-    
+
     protected function render(): void {
         $this->renderTitle();
         $this->renderMenu();
-        $this->renderMessage();
+        $this->renderPagination();
     }
 }
 ?>

@@ -1,89 +1,72 @@
 <?php
 require_once '../utility/htmlelements.php';
+require_once '../traits/button.php';
 
 abstract class Form {
-    
     // PROTECTED
-    protected $formClass = '';
-    protected $formTitle = '';
-    protected $fields = [];
-    protected $hiddenFields = [];
-    protected $postData = [];
-    protected $emptyFields = [];
-
-    // Need to make seperate button class, much simpler
-    protected $buttonText = '';
-    protected $buttonName = '';
-    protected $buttonValue = '';
-    protected $buttonClass = '';
+    use Button;
+    protected string $formClass;
+    protected string $formTitle;
+    protected array $fields;
+    protected array $fieldMap;
+    protected array $hiddenFields;
+    protected array $postData;
+    protected array $emptyFields;
 
     // PUBLIC 
-    public function __construct(array $postData = [], array $emptyFields = []) {
+    public function __construct(array $postData = []) {
         $this->postData = $postData;
-        $this->emptyFields = $emptyFields;
         $this->initialize();
+        $this->emptyFields = $this->validatePostData();
+        $this->fieldMap = $this->buildFieldMap();
     }
-    
+
     // Main render
-    public function render(): void {
-        $this->openForm($this->formClass);
-        
-        // Form title
-        if (!empty($this->formTitle)) {
-            $this->openLegend();
-            HtmlBuilder::showTitle($this->formTitle);
-            $this->closeLegend();
-        }
-        
-        // Children implement their own field rendering
-        $this->renderFields();
-        
-        // Submit button
-        $this->makeButton($this->buttonText, $this->buttonName, $this->buttonValue, $this->buttonClass);
-        
-        $this->closeForm();
+    public function renderForm(): void {
+        $this->render();
     }
     
     // ABSTRACT
     abstract protected function initialize(): void;
-    abstract protected function renderFields(): void;
+    abstract protected function render(): void;
     
-    // PROTECTED HELPERS -- Ignore helper function for now, its translated template of my procedural function
-    protected function renderField(string $field): void {
-        $cleanedField = StringHelper::slugify($field);
-        $isEmpty = in_array($cleanedField, $this->emptyFields);
-        $inputClass = $isEmpty ? 'error' : '';
-        $value = $this->postData[$cleanedField] ?? '';
-        
-        // Label
-        if ($this->showLabel) {
-            $this->makeLabel($cleanedField, $field);
+    //HELPER FUNCTIONS
+    private function buildFieldMap(): array {
+        $map = [];
+        foreach ($this->fields as $field) {
+            $label = $field['label'];
+            $map[$label] = $this->slugify($label);
         }
-        
-        // Field input - detect and render
-        if (str_contains($cleanedField, 'wachtwoord')) {
-            $this->makePasswordField($cleanedField, $value, $inputClass);
-        } elseif (str_contains($cleanedField, 'amount')) {
-            $this->makeNumberField($cleanedField, 1, 1, $inputClass);
-        } else {
-            $this->makeTextField($cleanedField, $value, $inputClass);
-        }
-        
-        // Error message
-        if ($isEmpty) {
-            HtmlBuilder::showSpan('Veld is leeg!', 'error');
-        }
-        
-        // Newline
-        if ($this->addNewline) {
-            HtmlBuilder::newLine();
+        return $map;
+    }
+
+    protected function renderHiddenFields(): void {
+        foreach ($this->hiddenFields as $name => $value) {
+            $this->makeHiddenField($name, $value);
         }
     }
-    
+
+    // Internal validation
+    private function validatePostData(): array {
+        $empty = [];
+
+        foreach ($this->postData as $key => $value) {
+            if (trim($value) === '') {
+                $empty[] = $key;
+            }
+        }
+
+        return $empty;
+    }
+
+    protected function isValidated(): bool {
+        return empty($this->emptyFields) && !empty($this->postData);
+    }
+
     // BASIC FORM ELEMENTS
     protected function openForm(string $class = '', string $method = 'post', string $action = 'index.php'): void {
-        echo '<form method="' . StringHelper::escape($method) . '" action="' . StringHelper::escape($action) . '"' .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<form method="' . HtmlBuilder::escape($method) . '" action="' . HtmlBuilder::escape($action) . '"' .
+             ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function closeForm(): void {
@@ -99,47 +82,46 @@ abstract class Form {
     }
 
     protected function makeHiddenField(string $name, string $value): void {
-        echo '<input type="hidden" name="' . StringHelper::escape($name) . '" value="' . StringHelper::escape($value) . '">';
+        echo '<input type="hidden" name="' . HtmlBuilder::escape($name) . '" value="' . HtmlBuilder::escape($value) . '">';
     }
     
     protected function makeTextField(string $name, string $value = '', string $class = ''): void {
-        echo '<input type="text" name="' . StringHelper::escape($name) . '" value="' . StringHelper::escape($value) . '"' .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<input type="text" name="' . HtmlBuilder::escape($name) . '" value="' . HtmlBuilder::escape($value) . '"' .
+             ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function makePasswordField(string $name, string $value = '', string $class = ''): void {
-        echo '<input type="password" name="' . StringHelper::escape($name) . '" value="' . StringHelper::escape($value) . '" autocomplete="new-password"' .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<input type="password" name="' . HtmlBuilder::escape($name) . '" value="' . HtmlBuilder::escape($value) . '" autocomplete="new-password"' .
+             ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function makeNumberField(string $name, int $min = 1, int $value = 1, string $class = ''): void {
-        echo '<input type="number" name="' . StringHelper::escape($name) . '" min="' . $min . '" value="' . $value . '"' .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<input type="number" name="' . HtmlBuilder::escape($name) . '" min="' . $min . '" value="' . $value . '"' .
+             ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function makeTextArea(string $name, string $value = '', string $class = '', string $rows = '5'): void {
-        echo '<textarea name="' . StringHelper::escape($name) . '"' .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . 
+        echo '<textarea name="' . HtmlBuilder::escape($name) . '"' .
+             ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . 
              ' rows="'. $rows .'">' . 
-             StringHelper::escape($value) . 
+             HtmlBuilder::escape($value) . 
              '</textarea>';
     }
     
     protected function makeEmailField(string $name, string $value = '', string $class = ''): void {
-        echo '<input type="email" name="' . StringHelper::escape($name) . '" value="' . StringHelper::escape($value) . '"' .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<input type="email" name="' . HtmlBuilder::escape($name) . '" value="' . HtmlBuilder::escape($value) . '"' .
+             ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
 
     protected function makeLabel(string $for, string $text): void {
-        echo '<label for="' . StringHelper::escape($for) . '">' . StringHelper::escape($text) . ':</label>';
+        echo '<label for="' . HtmlBuilder::escape($for) . '">' . HtmlBuilder::escape($text) . ':</label>';
     }
-    
-    protected function makeButton(string $text, string $name = '', string $value = '', string $class = ''): void {
-        echo '<button type="submit"' .
-             ($name ? ' name="' . StringHelper::escape($name) . '"' : '') .
-             ($value ? ' value="' . StringHelper::escape($value) . '"' : '') .
-             ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>' .
-             StringHelper::escape($text) . '</button>';
+
+    private function slugify(string $text): string {
+        $text = strtolower(trim($text));
+        $text = str_replace([' ', '-', '_'], '', $text);
+        $text = preg_replace('/[^a-z0-9]/', '', $text);
+        return $text;
     }
 }
 ?>

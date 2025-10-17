@@ -1,6 +1,6 @@
 .<?php 
 require_once '../utility/htmlelements.php';
-require_once 'body.php';
+require_once '../abstract/body.php';
 
 class htmlPage
 { 
@@ -41,14 +41,14 @@ class htmlPage
     // PROTECTED
     protected function showHeadContent(): void
     { 
-        if ($this->title) echo '<title>'.StringHelper::escape($this->title).'</title>'; 
-        if ($this->author) echo '<meta name="author" content="'.StringHelper::escape($this->author).'" />'; 
-        if ($this->pathToCSS) echo '<link rel="stylesheet" href="'.StringHelper::escape($this->pathToCSS).'">';
+        if ($this->title) echo '<title>'.HtmlBuilder::escape($this->title).'</title>'; 
+        if ($this->author) echo '<meta name="author" content="'.HtmlBuilder::escape($this->author).'" />'; 
+        if ($this->pathToCSS) echo '<link rel="stylesheet" href="'.HtmlBuilder::escape($this->pathToCSS).'">';
     }
 
     protected function showFooterContent(): void
     { 
-        echo '&copy ' . date("Y") . ' ' . StringHelper::escape($this->author);
+        echo '&copy ' . date("Y") . ' ' . HtmlBuilder::escape($this->author);
     }
     
     // PRIVATE

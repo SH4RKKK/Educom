@@ -27,7 +27,7 @@ class MainMenu extends Menu {
         HtmlBuilder::openLink($item);
         
         if (!empty($_SESSION['logged_in']) && $item === 'LOGOUT') {
-            echo $item . ' ' . StringHelper::escape($_SESSION['username']);
+            echo $item . ' ' . HtmlBuilder::escape($_SESSION['username']);
         } else {
             echo $item;
         }

@@ -1,6 +1,6 @@
 <?php
 require_once 'HtmlBuilder.php';
-require_once 'StringHelper.php';
+require_once 'HtmlBuilder.php';
 
 abstract class Table {
     
@@ -56,7 +56,7 @@ abstract class Table {
     
     // PROTECTED -- maybe privated?
     protected function openTable(string $class = ''): void {
-        echo '<table' . ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<table' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function closeTable(): void {
@@ -88,17 +88,17 @@ abstract class Table {
     }
     
     protected function makeTableHeaderCell(string $content, string $class = ''): void {
-        echo '<th' . ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>' . 
-             StringHelper::escape($content) . '</th>';
+        echo '<th' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>' . 
+             HtmlBuilder::escape($content) . '</th>';
     }
     
     protected function makeTableCell(string $data, string $class = ''): void {
-        echo '<td' . ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>' . 
-             StringHelper::escape($data) . '</td>';
+        echo '<td' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>' . 
+             HtmlBuilder::escape($data) . '</td>';
     }
     
     protected function openTableCell(string $class = ''): void {
-        echo '<td' . ($class ? ' class="' . StringHelper::escape($class) . '"' : '') . '>';
+        echo '<td' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
     protected function closeTableCell(): void {
@@ -125,7 +125,7 @@ class CartTable extends Table {
         // Product cell with image
         $this->openTableCell('cart-product');
         HtmlBuilder::loadImage($item['image_path'], $item['name']);
-        echo '<span>' . StringHelper::escape($item['name']) . '</span>';
+        echo '<span>' . HtmlBuilder::escape($item['name']) . '</span>';
         $this->closeTableCell();
         
         // Price

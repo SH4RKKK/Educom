@@ -167,7 +167,7 @@ footer {
 }
 
 .myForm textarea {
-  resize: vertical;
+  resize: none;
   min-height: 100px;
   font-family: inherit;
 }
@@ -192,15 +192,6 @@ footer {
   font-size: 13px;
   margin-left: 8px;
   margin-bottom: 8px;
-}
-
-.pagination a {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 600;
-}
-.pagination a:hover {
-  text-decoration: underline;
 }
 
 .cart-wrapper {
@@ -398,14 +389,29 @@ footer {
   background-color: #1f8c39;
 }
 
-.pagination-container {
-    text-align: center;
-    margin-top: 20px;
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 20px;
 }
 
-.pagination {
-    display: inline-flex;
-    gap: 5px;
+.pagination a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.pagination a:hover {
+  background-color: #e9ecef;
+}
+
+.pagination a.active {
+  background-color: #007bff;
+  color: white;
 }
 
 .page-btn {
