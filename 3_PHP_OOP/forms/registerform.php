@@ -1,6 +1,5 @@
 <?php
 require_once '../abstract/GeneralForm.php';
-require_once '../utility/stringhelper.php';
 
 class RegisterForm extends GeneralForm {
     private string $passwordMisMatchErrMsg = 'Wachtwoorden komen niet overeen';
@@ -12,9 +11,9 @@ class RegisterForm extends GeneralForm {
             ['label' => 'Naam', 'type' => 'text'],
             ['label' => 'E-mail', 'type' => 'email'],
             ['label' => 'Wachtwoord', 'type' => 'password'],
-            ['label' => 'Herhaal Wachtwoord', 'type' => 'password']
+            ['label' => 'Herhaal Wachtwoord', 'type' => 'password'],
+            ['label' => 'page', 'type' => 'hidden', 'value' => 'register']
         ];
-        $this->hiddenFields = ['page' => 'register'];
         $this->title = [
             'text' => 'Succesvol geregisteerd!!!',
             'class' => 'title'

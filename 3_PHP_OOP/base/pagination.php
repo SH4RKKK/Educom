@@ -15,7 +15,11 @@ class Pagination {
         $this->setDisplayPage();
     }
 
-    public function render(): void {
+    public function show(): void {
+        $this->render();
+    }
+
+    private function render(): void {
         if ($this->totalPages <= 1) {
             return;
         }
@@ -31,13 +35,17 @@ class Pagination {
         HtmlBuilder::closeDiv();
     }
 
-    public function getDisplayPage(): int {
+    public final function getDisplayPage(): int {
         return $this->displayPage;
     }
 
-    public function setDisplayPage(int $currentPage = 1) {
+    public final function setDisplayPage(int $currentPage = 1) {
         $currentPage = isset($_GET[$this->paraName]) ? (int)$_GET[$this->paraName] : 1;
         $this->displayPage = max(1, min($currentPage, $this->totalPages));
+    }
+
+    public final function setTotalPages(): void {
+        $this->totalPages = ceil($this->totalItems / $this->productPerPage);
     }
 }
 ?>

@@ -80,8 +80,11 @@ function validateRequest(array $request) : array {
                 $result['page'] = 'login';
                 break;
             case 'webshop':
+                fetchItems($result);
+                break;
             case 'cart':
                 fetchItems($result);
+                $result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
                 break;
             case 'product':
                 try {

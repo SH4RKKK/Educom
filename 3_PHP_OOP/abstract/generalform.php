@@ -1,6 +1,5 @@
 <?php
 require_once '../abstract/Form.php';
-require_once '../utility/stringhelper.php';
 require_once '../traits/title.php';
 
 abstract class GeneralForm extends Form {
@@ -9,37 +8,29 @@ abstract class GeneralForm extends Form {
     abstract protected function initialize(): void;
     
     protected function render(): void {
-        if (!$this->isValidated()) {
-            $this->openForm($this->formClass);
-            
-
-            //Logic needs to be fixed later when having a validator class
-            /*
-                    $msg = $response['message'] ?: (!empty($response['empty']) 
-                        ? 'Een of meerdere velden zijn leeg'
-                        : 'Vul gegevens in om in contact te komen!!!');
-                        
-            */
-
-            if (!empty($this->formTitle)) {
-                $this->openLegend();
-                empty($this->emptyFields) ? HtmlBuilder::showTitle($this->formTitle) : HtmlBuilder::showTitle($this->errMsg);
-                $this->closeLegend();
-            }
-
-            $this->renderHiddenFields();
-            $this->renderFields();
-            $this->renderButtons();
-            $this->closeForm();
-        } else {
+        if ($this->isValidated()) {
             $this->renderTitle();
+            return;
         }
-    }
 
-    protected function renderFields(): void {
-        foreach ($this->fields as $field) {
-            $this->renderField($field);
-        }
+        $this->openForm($this->formClass);
+        $this->openLegend();
+        if (!empty($this->emptyFields)) $this->formTitle = $this->errMsg;
+        HtmlBuilder::showTitle($this->formTitle);
+        $this->closeLegend();
+
+        $this->renderFields();
+        $this->renderButtons();
+        $this->closeForm();
+
+
+        //Logic needs to be fixed later when having a validator class
+        /*
+                $msg = $response['message'] ?: (!empty($response['empty']) 
+                    ? 'Een of meerdere velden zijn leeg'
+                    : 'Vul gegevens in om in contact te komen!!!');
+                    
+        */
     }
 
     protected function renderField(array $field): void {
@@ -49,9 +40,9 @@ abstract class GeneralForm extends Form {
         
         $isEmpty = in_array($name, $this->emptyFields);
         $inputClass = $isEmpty ? 'error' : '';
-        $value = $this->postData[$name] ?? '';
+        $value = !empty($this->postData[$name]) ? $this->postData[$name] : ($field['value'] ?? '');
         
-        $this->makeLabel($name, $label);
+        if($field['type'] !== 'hidden') $this->makeLabel($name, $label);
         $this->renderInput($name, $type, $value, $inputClass);
         
         if ($isEmpty) {
@@ -60,15 +51,5 @@ abstract class GeneralForm extends Form {
         
         HtmlBuilder::newLine();
     }
-
-    protected function renderInput(string $name, string $type, string $value, string $class): void {
-        match($type) {
-            'textarea' => $this->makeTextArea($name, $value, $class),
-            'email' => $this->makeEmailField($name, $value, $class),
-            'password' => $this->makePasswordField($name, $value, $class),
-            'number' => $this->makeNumberField($name, 1, (int)$value, $class),
-            default => $this->makeTextField($name, $value, $class)
-        };
-    } 
 }
 ?>

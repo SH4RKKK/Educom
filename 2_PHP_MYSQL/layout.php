@@ -19,7 +19,7 @@ function createHeader(array $response): void {
 function showResponse(array $response) : void {
     createHeader($response);
     //include 'pages/' . $response['page'] . '.php';
-
+    
     switch($response['page']) {
         case 'about':
             about();

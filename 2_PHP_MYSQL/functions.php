@@ -600,13 +600,13 @@ function fetchItemDetails (array &$result, int $itemID): void {
 //Combine items and orders to figure out how much of what has been ordered
 function appendAmountToItem (array $session, array $items): array {
     return array_filter(array_map(function($product) use ($session) {
-    $id = $product['id'];
-    if (isset($session[$id])) {
-        $product['amount'] = $session[$id];
-        return $product;
-    }
-    return null;
-}, $items));
+        $id = $product['id'];
+        if (isset($session[$id])) {
+            $product['amount'] = $session[$id];
+            return $product;
+        }
+        return null;
+    }, $items));
 }
 
 //Append an order to the database, first to orders then order_item

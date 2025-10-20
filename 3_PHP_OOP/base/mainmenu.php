@@ -11,6 +11,10 @@ class MainMenu extends Menu {
             'WEBSHOP',
         ];
 
+        $this->menuClass = 'options';
+    }
+
+    public function updateMenu(): void {
         if (!empty($_SESSION['logged_in'])) {
             $this->menuItems[] = 'CART';
             $this->menuItems[] = 'LOGOUT';
@@ -18,8 +22,6 @@ class MainMenu extends Menu {
             $this->menuItems[] = 'LOGIN';
             $this->menuItems[] = 'REGISTER';
         }
-
-        $this->menuClass = 'options';
     }
     
     protected function renderMenuItem(string $item): void {

@@ -48,7 +48,7 @@ class HtmlBuilder {
     
     // IMAGE
     public static function loadImage(string $path, string $name, string $class = ''): void {
-        echo '<img src="images/' . self::escape($path) . '" alt="' . self::escape($name) . '"' . 
+        echo '<img src="' . self::escape($path) . '" alt="' . self::escape($name) . '"' . 
              ($class ? ' class="' . self::escape($class) . '"' : '') . '>';
     }
 

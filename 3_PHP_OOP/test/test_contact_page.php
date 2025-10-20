@@ -1,20 +1,12 @@
 <?php
 require_once '../base/htmlPage.php';
 require_once '../pages/contact.php';
+
 $test = $_GET['test'] ?? 1;
 
 switch ($test) {
     case 1:
     $contact = new Contact();
-    $page = new htmlPage(
-        "Saman's Whey",
-        'Saman Ahmad',
-        '../css/style.css',
-        'content',
-        $contact
-    );
-
-    $page->show();
     break;
 
     case 2: //missing field
@@ -27,15 +19,6 @@ switch ($test) {
         $_POST = $fakePostData;
 
         $contact = new Contact();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $contact
-        );
-        
-        $page->show();
     break;
 
     case 3: //all fields filled
@@ -46,16 +29,16 @@ switch ($test) {
         ];
         
         $_POST = $fakePostData;
-
         $contact = new Contact();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $contact
-        );
-        
-        $page->show();
 }
+
+$page = new htmlPage(
+    "Saman's Whey",
+    'Saman Ahmad',
+    '../css/style.css',
+    'content',
+    $contact
+);
+
+$page->show();
 ?>

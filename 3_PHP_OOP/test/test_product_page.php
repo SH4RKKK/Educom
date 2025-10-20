@@ -1,6 +1,6 @@
 <?php
 require_once '../base/htmlPage.php';
-require_once '../pages/webshop.php';
+require_once '../pages/product.php';
 $test = $_GET['test'] ?? 1;
 session_start();
 
@@ -81,23 +81,17 @@ $productsperpage = 2;
 
 switch ($test) {
     case 1: 
-        $webshop = new Webshop($items,$productsperpage);
+        $webshop = new Product($items[1]);
         break;
     case 2:
         $_SESSION['logged_in'] = true;
         $_SESSION['username'] = 'Piet';  
 
-        $webshop = new Webshop($items,$productsperpage);
+        $webshop = new Product($items[1]);
         break;
     case 3:
-        $productsperpage = 10;
-
-        $webshop = new Webshop($items,$productsperpage);
-        break;
-    case 4:
-        unset($items);
-        $items = [];
-        $webshop = new Webshop($items,$productsperpage);
+        $items = []; //Controller logic missing to handle empty items,
+        $webshop = new Product($items[1] ?? null);
         break;
 }
 

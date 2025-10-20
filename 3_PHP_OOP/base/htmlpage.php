@@ -1,4 +1,4 @@
-.<?php 
+<?php 
 require_once '../utility/htmlelements.php';
 require_once '../abstract/body.php';
 

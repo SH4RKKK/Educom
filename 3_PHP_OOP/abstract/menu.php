@@ -2,12 +2,9 @@
 require_once '../utility/htmlelements.php';
 
 abstract class Menu {
-    
-    // PROTECTED
     protected $menuClass = '';
     protected $menuItems = [];
     
-    // PUBLIC
     public function __construct() {
         $this->initialize();
     }
@@ -27,12 +24,11 @@ abstract class Menu {
     abstract protected function initialize(): void;
     abstract protected function renderMenuItem(string $item): void;
     
-    // PROTECTED -- could be private?
-    protected function openUnorderedList(string $class = ''): void {
+    private function openUnorderedList(string $class = ''): void {
         echo '<ul' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
-    protected function closeUnorderedList(): void {
+    private function closeUnorderedList(): void {
         echo '</ul>';
     }
     

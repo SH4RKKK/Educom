@@ -1,6 +1,5 @@
 <?php
 require_once '../abstract/GeneralForm.php';
-require_once '../utility/stringhelper.php';
 
 class LoginForm extends GeneralForm {
     protected function initialize(): void {
@@ -8,9 +7,9 @@ class LoginForm extends GeneralForm {
         $this->formTitle = 'Welkom terug';
         $this->fields = [
             ['label' => 'E-mail', 'type' => 'email'],
-            ['label' => 'Wachtwoord', 'type' => 'password']
+            ['label' => 'Wachtwoord', 'type' => 'password'],
+            ['label' => 'page', 'type' => 'hidden', 'value' => 'login']
         ];
-        $this->hiddenFields = ['page' => 'login'];
         $this->title = [
             'text' => 'Login succesvol',
             'class' => 'title'

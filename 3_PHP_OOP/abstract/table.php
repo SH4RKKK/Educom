@@ -1,22 +1,18 @@
 <?php
-require_once 'HtmlBuilder.php';
-require_once 'HtmlBuilder.php';
+require_once '../utility/htmlelements.php';
 
 abstract class Table {
-    
-    // PROTECTED - Children can access
-    protected $tableClass = '';
+    protected $tableClass;
     protected $headers = [];
     protected $data = [];
     
-    // PUBLIC
     public function __construct(array $data = []) {
         $this->data = $data;
         $this->initialize();
     }
     
     // Main render
-    public function show(): void {
+    public final function show(): void {
         $this->openTable($this->tableClass);
         $this->renderHeader();
         $this->renderBody();
@@ -25,8 +21,7 @@ abstract class Table {
     
     // ABSTRACT
     abstract protected function initialize(): void;
-    abstract protected function renderRow($item): void;
-    
+    abstract protected function renderRow(array $item): void;
     // PROTECTED
     protected function renderHeader(): void {
         if (empty($this->headers)) return;
@@ -54,49 +49,7 @@ abstract class Table {
         $this->closeTableBody();
     }
     
-    // PROTECTED -- maybe privated?
-    protected function openTable(string $class = ''): void {
-        echo '<table' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
-    }
-    
-    protected function closeTable(): void {
-        echo '</table>';
-    }
-    
-    protected function openTableHead(): void {
-        echo '<thead>';
-    }
-    
-    protected function closeTableHead(): void {
-        echo '</thead>';
-    }
-    
-    protected function openTableBody(): void {
-        echo '<tbody>';
-    }
-    
-    protected function closeTableBody(): void {
-        echo '</tbody>';
-    }
-    
-    protected function openTableRow(): void {
-        echo '<tr>';
-    }
-    
-    protected function closeTableRow(): void {
-        echo '</tr>';
-    }
-    
-    protected function makeTableHeaderCell(string $content, string $class = ''): void {
-        echo '<th' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>' . 
-             HtmlBuilder::escape($content) . '</th>';
-    }
-    
-    protected function makeTableCell(string $data, string $class = ''): void {
-        echo '<td' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>' . 
-             HtmlBuilder::escape($data) . '</td>';
-    }
-    
+    // PRIVATE
     protected function openTableCell(string $class = ''): void {
         echo '<td' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
@@ -104,44 +57,42 @@ abstract class Table {
     protected function closeTableCell(): void {
         echo '</td>';
     }
-}
-/*
-<?php
-require_once 'Table.php';
 
-class CartTable extends Table {
-    
-    private $total = 0;
-    
-    protected function initialize(): void {
-        $this->tableClass = 'cart-table';
-        $this->headers = ['Product', 'Prijs', 'Aantal', 'Subtotaal'];
+    private function openTable(string $class = ''): void {
+        echo '<table' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }
     
-    protected function renderRow($item): void {
-        $subtotal = $item['price'] * $item['amount'];
-        $this->total += $subtotal;
-        
-        // Product cell with image
-        $this->openTableCell('cart-product');
-        HtmlBuilder::loadImage($item['image_path'], $item['name']);
-        echo '<span>' . HtmlBuilder::escape($item['name']) . '</span>';
-        $this->closeTableCell();
-        
-        // Price
-        $this->makeTableCell('€' . number_format($item['price'], 2, ',', '.'));
-        
-        // Amount
-        $this->makeTableCell((string)(int)$item['amount']);
-        
-        // Subtotal
-        $this->makeTableCell('€' . number_format($subtotal, 2, ',', '.'));
+    private function closeTable(): void {
+        echo '</table>';
     }
     
-    public function getTotal(): float {
-        return $this->total;
+    private function openTableHead(): void {
+        echo '<thead>';
+    }
+    
+    private function closeTableHead(): void {
+        echo '</thead>';
+    }
+    
+    private function openTableBody(): void {
+        echo '<tbody>';
+    }
+    
+    private function closeTableBody(): void {
+        echo '</tbody>';
+    }
+    
+    private function openTableRow(): void {
+        echo '<tr>';
+    }
+    
+    private function closeTableRow(): void {
+        echo '</tr>';
+    }
+    
+    private function makeTableHeaderCell(string $content, string $class = ''): void {
+        echo '<th' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>' . 
+             HtmlBuilder::escape($content) . '</th>';
     }
 }
-?>
-*/
 ?>

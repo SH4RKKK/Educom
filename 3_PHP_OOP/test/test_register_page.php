@@ -6,15 +6,6 @@ $test = $_GET['test'] ?? 1;
 switch ($test) {
     case 1:
         $register = new Register();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $register
-        );
-
-        $page->show();
         break;
 
     case 2: //missing field
@@ -28,15 +19,6 @@ switch ($test) {
         $_POST = $fakePostData;
 
         $register = new Register();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $register
-        );
-        
-        $page->show();
         break;
 
     case 3: //all fields filled
@@ -50,15 +32,6 @@ switch ($test) {
         $_POST = $fakePostData;
 
         $register = new Register();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $register
-        );
-        
-        $page->show();
         break;
     case 4: //mismatch passwords
         $fakePostData = [
@@ -71,15 +44,16 @@ switch ($test) {
         $_POST = $fakePostData;
 
         $register = new Register();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $register
-        );
-        
-        $page->show();
         break;
 }
+
+$page = new htmlPage(
+    "Saman's Whey",
+    'Saman Ahmad',
+    '../css/style.css',
+    'content',
+    $register
+);
+
+$page->show();
 ?>

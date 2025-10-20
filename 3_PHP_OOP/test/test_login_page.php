@@ -6,15 +6,6 @@ $test = $_GET['test'] ?? 1;
 switch ($test) {
     case 1:
     $login = new Login();
-    $page = new htmlPage(
-        "Saman's Whey",
-        'Saman Ahmad',
-        '../css/style.css',
-        'content',
-        $login
-    );
-
-    $page->show();
     break;
 
     case 2: //missing field
@@ -26,15 +17,6 @@ switch ($test) {
         $_POST = $fakePostData;
 
         $login = new Login();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $login
-        );
-        
-        $page->show();
     break;
 
     case 3: //all fields filled
@@ -46,14 +28,15 @@ switch ($test) {
         $_POST = $fakePostData;
 
         $login = new Login();
-        $page = new htmlPage(
-            "Saman's Whey",
-            'Saman Ahmad',
-            '../css/style.css',
-            'content',
-            $login
-        );
-        
-        $page->show();
 }
+
+$page = new htmlPage(
+    "Saman's Whey",
+    'Saman Ahmad',
+    '../css/style.css',
+    'content',
+    $login
+);
+
+$page->show();
 ?>

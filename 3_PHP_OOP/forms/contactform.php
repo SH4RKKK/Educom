@@ -1,6 +1,5 @@
 <?php
 require_once '../abstract/GeneralForm.php';
-require_once '../utility/stringhelper.php';
 
 class ContactForm extends GeneralForm {
     protected function initialize(): void {
@@ -9,9 +8,9 @@ class ContactForm extends GeneralForm {
         $this->fields = [
             ['label' => 'Naam', 'type' => 'text'],
             ['label' => 'E-mail', 'type' => 'email'],
-            ['label' => 'Bericht', 'type' => 'textarea']
+            ['label' => 'Bericht', 'type' => 'textarea'],
+            ['label' => 'page', 'type' => 'hidden', 'value' => 'contact']
         ];
-        $this->hiddenFields = ['page' => 'contact'];
         $this->title = [
             'text' => 'Bedankt voor jouw bericht, we reageren zo snel mogelijk!',
             'class' => 'title'

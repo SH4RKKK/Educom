@@ -285,6 +285,7 @@ footer {
 }
 
 .checkout-btn {
+  display: block;
   width: 100%;
   margin-top: 25px;
   padding: 14px 0;
@@ -296,6 +297,8 @@ footer {
   cursor: pointer;
   font-weight: 600;
   letter-spacing: 0.3px;
+  text-align: center;
+  text-decoration: none;
   transition: background 0.25s ease;
 }
 
@@ -311,29 +314,28 @@ footer {
     width: 100%;
   }
 }
-
 .product-detail {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 30px;
-  margin: 20px 0;
+  margin: 20px auto;
   box-sizing: border-box;
+  max-width: 800px;
+  text-align: center;
 }
 
-.product-image-section {
-  margin-bottom: 30px;
-}
-
-.product-image-section img {
+.product-image {
   width: 100%;
   height: auto;
   border-radius: 6px;
   max-height: 500px;
   object-fit: contain;
+  margin: 0 auto 30px;
+  display: block;
 }
 
-.product-info-section h2 {
+.product-title {
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 15px;
@@ -343,7 +345,7 @@ footer {
 .product-price {
   font-size: 28px;
   font-weight: 600;
-  color: darkgreen;
+  color: black;
   margin: 0 0 20px;
 }
 
@@ -354,23 +356,24 @@ footer {
   margin-bottom: 30px;
 }
 
-.product-order-form {
+.action-container {
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: center;
 }
-
-.product-order-form input[type="number"] {
+.action-container input[type="number"] {
   width: 80px;
   padding: 10px;
   text-align: center;
   border: 1px solid #bbb;
   border-radius: 4px;
   font-size: 16px;
+  margin-right: 10px;
 }
 
-.product-order-form button,
-.login-prompt {
+.action-container button,
+.action-container a {
   padding: 12px 24px;
   background: #28a745;
   color: #fff;
@@ -382,10 +385,16 @@ footer {
   font-size: 16px;
   display: inline-block;
   transition: background-color 0.25s ease;
+  margin-right: 10px;
 }
 
-.product-order-form button:hover,
-.login-prompt:hover {
+.action-container button:last-child,
+.action-container a:last-child {
+  margin-right: 0;
+}
+
+.action-container button:hover,
+.action-container a:hover {
   background-color: #1f8c39;
 }
 
