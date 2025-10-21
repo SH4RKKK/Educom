@@ -1,14 +1,25 @@
 <?php
-require_once '../base/body.php';
-require_once '../forms/loginform.php';
+require_once '../base/bodycontent.php';
+require_once '../forms/generalform.php';
 
 class Login extends BodyContent {
-    private LoginForm $form;
+    private GeneralForm $form;
     
     protected function initialize(): void {
         parent::initialize();
 
-        $this->form = new LoginForm($_POST);
+        $this->form = new GeneralForm(
+            $_POST,
+            'myForm',
+            'Welkom terug',
+            [
+                ['label' => 'E-mail', 'type' => 'email'],
+                ['label' => 'Wachtwoord', 'type' => 'password'],
+                ['label' => 'page', 'type' => 'hidden', 'value' => 'login']
+            ],
+            'Login succesvol',
+            'Login'
+        );
     }
     
     protected function render(): void {

@@ -1,5 +1,5 @@
 <?php
-require_once '../base/body.php';
+require_once '../base/bodycontent.php';
 require_once '../base/MainMenu.php';
 require_once '../traits/bodymessage.php';
 

@@ -25,7 +25,7 @@ class MainMenu extends Menu {
     }
     
     protected function renderMenuItem(string $item): void {
-        $this->openList();
+        $this->openListItem();
         HtmlBuilder::openLink($item);
         
         if (!empty($_SESSION['logged_in']) && $item === 'LOGOUT') {
@@ -35,7 +35,7 @@ class MainMenu extends Menu {
         }
         
         HtmlBuilder::closeLink();
-        $this->closeList();
+        $this->closeListItem();
     }
 }
 ?>

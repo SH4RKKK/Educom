@@ -1,6 +1,6 @@
 <?php 
 require_once '../utility/htmlelements.php';
-require_once '../base/body.php';
+require_once '../base/bodycontent.php';
 
 class htmlPage
 { 

@@ -1,5 +1,5 @@
 <?php
-require_once '../base/body.php';
+require_once '../base/bodycontent.php';
 require_once '../base/productcard.php';
 require_once '../base/item.php';
 

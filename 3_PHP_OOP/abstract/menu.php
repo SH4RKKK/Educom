@@ -32,11 +32,11 @@ abstract class Menu {
         echo '</ul>';
     }
     
-    protected function openList(): void {
+    protected function openListItem(): void {
         echo '<li>';
     }
     
-    protected function closeList(): void {
+    protected function closeListItem(): void {
         echo '</li>';
     }
 }

@@ -1,70 +1,44 @@
 <?php
 require_once '../utility/htmlelements.php';
 require_once '../traits/postbutton.php';
+require_once '../validators/formvalidator.php';
 
 abstract class Form {
-    // PROTECTED
     use PostButton;
-    protected string $formClass,$formTitle;
-    protected array $fields,$fieldMap,$postData,$emptyFields;
+    
+    protected string $formClass, $formTitle;
+    protected array $fields, $postData;
+    protected ?FormValidator $validator = null;
 
-    // PUBLIC 
     public function __construct(array $postData = []) {
         $this->postData = $postData;
-        $this->initialize();
     }
 
-    // Main render
     public function renderForm(): void {
-        $this->setFieldMap();
-        $this->setEmptyFields();
+        $this->validator = new FormValidator($this->fields, $this->postData);
+        $this->validator->validate();
         $this->render();
     }
     
-    // ABSTRACT
-    abstract protected function initialize(): void;
     abstract protected function render(): void;
     abstract protected function renderField(array $field): void;
     
-    //HELPER FUNCTIONS
-    private function buildFieldMap(): array {
-        $map = [];
-        foreach ($this->fields as $field) {
-            $label = $field['label'];
-            $map[$label] = $this->slugify($label);
-        }
-        return $map;
-    }
-
     protected function renderFields(): void {
         foreach ($this->fields as $field) {
             $this->renderField($field);
         }
     }
 
-    // Internal validation
-    private function validatePostData(): array {
-        $empty = [];
-
-        foreach ($this->postData as $key => $value) {
-            if (trim($value) === '') {
-                $empty[] = $key;
-            }
-        }
-
-        return $empty;
-    }
-
     protected function isValidated(): bool {
-        return empty($this->emptyFields) && !empty($this->postData);
+        return $this->validator !== null && $this->validator->isValid();
     }
 
-    private function setEmptyFields(): void {
-        $this->emptyFields = $this->validatePostData();
+    protected function getEmptyFields(): array {
+        return $this->validator?->getEmptyFields() ?? [];
     }
 
-    private function setFieldMap(): void {
-        $this->fieldMap = $this->buildFieldMap();
+    protected function getFieldMap(): array {
+        return $this->validator?->getFieldMap() ?? [];
     }
 
     // BASIC FORM ELEMENTS
@@ -130,13 +104,6 @@ abstract class Form {
             'hidden' => $this->makeHiddenField($name, $value),
             default => $this->makeTextField($name, $value, $class)
         };
-    } 
-
-    private function slugify(string $text): string {
-        $text = strtolower(trim($text));
-        $text = str_replace([' ', '-', '_'], '', $text);
-        $text = preg_replace('/[^a-z0-9]/', '', $text);
-        return $text;
     }
 }
 ?>
