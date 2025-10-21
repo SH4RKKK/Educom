@@ -2,12 +2,9 @@
 require_once '../utility/htmlelements.php';
 
 class Item {
-    private int $id;
-    private string $name;
-    private string $description;
+    private int $id,$amount;
     private float $price;
-    private string $imagePath;
-    private int $amount;
+    private string $name,$description,$imagePath;
     
     // PUBLIC
     public function __construct(array $item) {

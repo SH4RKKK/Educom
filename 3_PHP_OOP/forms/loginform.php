@@ -10,10 +10,7 @@ class LoginForm extends GeneralForm {
             ['label' => 'Wachtwoord', 'type' => 'password'],
             ['label' => 'page', 'type' => 'hidden', 'value' => 'login']
         ];
-        $this->title = [
-            'text' => 'Login succesvol',
-            'class' => 'title'
-        ];
+        $this->title = 'Login succesvol';
         $this->addButton('Login');
     }
 }

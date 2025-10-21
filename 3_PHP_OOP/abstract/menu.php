@@ -2,8 +2,8 @@
 require_once '../utility/htmlelements.php';
 
 abstract class Menu {
-    protected $menuClass = '';
-    protected $menuItems = [];
+    protected string $menuClass;
+    protected array $menuItems;
     
     public function __construct() {
         $this->initialize();

@@ -1,7 +1,7 @@
 <?php
 require_once '../utility/htmlelements.php';
 
-trait Button {
+trait PostButton {
     protected array $buttons = [];
 
     protected function addButton(string $text, string $name = '', string $value = '', string $class = ''): void

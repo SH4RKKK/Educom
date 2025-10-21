@@ -1,16 +1,12 @@
 <?php
 require_once '../utility/htmlelements.php';
-require_once '../traits/button.php';
+require_once '../traits/postbutton.php';
 
 abstract class Form {
     // PROTECTED
-    use Button;
-    protected string $formClass;
-    protected string $formTitle;
-    protected array $fields;
-    protected array $fieldMap;
-    protected array $postData;
-    protected array $emptyFields;
+    use PostButton;
+    protected string $formClass,$formTitle;
+    protected array $fields,$fieldMap,$postData,$emptyFields;
 
     // PUBLIC 
     public function __construct(array $postData = []) {
@@ -20,6 +16,8 @@ abstract class Form {
 
     // Main render
     public function renderForm(): void {
+        $this->setFieldMap();
+        $this->setEmptyFields();
         $this->render();
     }
     
@@ -61,11 +59,11 @@ abstract class Form {
         return empty($this->emptyFields) && !empty($this->postData);
     }
 
-    public final function setEmptyFields(): void {
+    private function setEmptyFields(): void {
         $this->emptyFields = $this->validatePostData();
     }
 
-    public final function setFieldMap(): void {
+    private function setFieldMap(): void {
         $this->fieldMap = $this->buildFieldMap();
     }
 

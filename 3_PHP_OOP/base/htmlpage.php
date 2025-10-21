@@ -1,14 +1,11 @@
 <?php 
 require_once '../utility/htmlelements.php';
-require_once '../abstract/body.php';
+require_once '../base/body.php';
 
 class htmlPage
 { 
     // PRIVATE
-    private $title;
-    private $author;
-    private $pathToCSS;
-    private $class;
+    private string $title,$author,$pathToCSS,$class;
     protected BodyContent $bodyContent;
 
     // PUBLIC

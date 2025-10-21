@@ -2,9 +2,8 @@
 require_once '../utility/htmlelements.php';
 
 abstract class Table {
-    protected $tableClass;
-    protected $headers = [];
-    protected $data = [];
+    protected string $tableClass;
+    protected array $headers,$data;
     
     public function __construct(array $data = []) {
         $this->data = $data;
@@ -12,7 +11,7 @@ abstract class Table {
     }
     
     // Main render
-    public final function show(): void {
+    public function show(): void {
         $this->openTable($this->tableClass);
         $this->renderHeader();
         $this->renderBody();
@@ -22,6 +21,7 @@ abstract class Table {
     // ABSTRACT
     abstract protected function initialize(): void;
     abstract protected function renderRow(array $item): void;
+    
     // PROTECTED
     protected function renderHeader(): void {
         if (empty($this->headers)) return;

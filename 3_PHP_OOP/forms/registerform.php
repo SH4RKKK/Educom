@@ -14,10 +14,7 @@ class RegisterForm extends GeneralForm {
             ['label' => 'Herhaal Wachtwoord', 'type' => 'password'],
             ['label' => 'page', 'type' => 'hidden', 'value' => 'register']
         ];
-        $this->title = [
-            'text' => 'Succesvol geregisteerd!!!',
-            'class' => 'title'
-        ];
+        $this->title = 'Succesvol geregisteerd!!!';
         $this->addButton('Registreer');
     }
 

@@ -1,22 +1,25 @@
 <?php
 require_once '../abstract/Form.php';
-require_once '../traits/title.php';
 
 abstract class GeneralForm extends Form {
-    use Title;
-    protected string $errMsg = 'Een of meerdere velden zijn leeg';
+    protected string $title,$errTitle,$errMsg;
     abstract protected function initialize(): void;
     
+    public function __construct($post) {
+        $this->errTitle = 'Een of meerdere velden zijn leeg';
+        $this->errMsg = 'Veld is leeg!';
+        parent::__construct($post);
+    }
+
     protected function render(): void {
         if ($this->isValidated()) {
-            $this->renderTitle();
+            HtmlBuilder::showTitle($this->title);
             return;
         }
 
         $this->openForm($this->formClass);
         $this->openLegend();
-        if (!empty($this->emptyFields)) $this->formTitle = $this->errMsg;
-        HtmlBuilder::showTitle($this->formTitle);
+        !empty($this->emptyFields) ? HtmlBuilder::showTitle($this->errMsg) : HtmlBuilder::showTitle($this->formTitle);
         $this->closeLegend();
 
         $this->renderFields();
@@ -46,7 +49,7 @@ abstract class GeneralForm extends Form {
         $this->renderInput($name, $type, $value, $inputClass);
         
         if ($isEmpty) {
-            HtmlBuilder::showSpan('Veld is leeg!', $inputClass);
+            HtmlBuilder::showSpan($this->errMsg, $inputClass);
         }
         
         HtmlBuilder::newLine();

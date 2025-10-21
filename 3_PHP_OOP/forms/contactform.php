@@ -11,10 +11,7 @@ class ContactForm extends GeneralForm {
             ['label' => 'Bericht', 'type' => 'textarea'],
             ['label' => 'page', 'type' => 'hidden', 'value' => 'contact']
         ];
-        $this->title = [
-            'text' => 'Bedankt voor jouw bericht, we reageren zo snel mogelijk!',
-            'class' => 'title'
-        ];
+        $this->title = 'Bedankt voor jouw bericht, we reageren zo snel mogelijk!';
         $this->addButton('Vestuur');
     }
 }

@@ -1,18 +1,14 @@
 <?php
 class Pagination {
-    private int $displayPage;
-    private int $totalPages;
-    private string $pageName;
-    private string $class;
-    private string $paraName;
+    private int $totalItems,$productPerPage,$displayPage,$totalPages;
+    private string $pageName,$class,$paraName;
 
     public function __construct(int $totalItems, int $productPerPage, string $pageName, string $class, string $paraName = 'index') {
-        $this->totalPages = ceil($totalItems / $productPerPage);
+        $this->totalItems = $totalItems;
+        $this->productPerPage = $productPerPage;
         $this->pageName = $pageName;
         $this->class = $class;
-
         $this->paraName = $paraName;
-        $this->setDisplayPage();
     }
 
     public function show(): void {
@@ -36,15 +32,17 @@ class Pagination {
     }
 
     public final function getDisplayPage(): int {
+        $this->setTotalPages();
+        $this->setDisplayPage();
         return $this->displayPage;
     }
 
-    public final function setDisplayPage(int $currentPage = 1) {
+    private function setDisplayPage(int $currentPage = 1) {
         $currentPage = isset($_GET[$this->paraName]) ? (int)$_GET[$this->paraName] : 1;
         $this->displayPage = max(1, min($currentPage, $this->totalPages));
     }
 
-    public final function setTotalPages(): void {
+    private function setTotalPages(): void {
         $this->totalPages = ceil($this->totalItems / $this->productPerPage);
     }
 }
