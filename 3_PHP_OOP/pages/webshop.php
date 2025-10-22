@@ -10,12 +10,13 @@ class Webshop extends BodyContent {
 
     private array $products,$productsToShow;
     private int $totalItems,$productPerPage;
-    private string $noProductErrMsg,$pageClass;
+    private string $noProductErrMsg,$errorMessage,$pageClass;
 
-    public function __construct(array $items,int $productPerPage) {
+    public function __construct(array $items,int $productPerPage,string $errorMessage = '') {
         $this->products = $items;
         $this->totalItems = count($items);
         $this->productPerPage = $productPerPage;
+        $this->errorMessage = $errorMessage;
 
         parent::__construct();
     }
@@ -36,8 +37,13 @@ class Webshop extends BodyContent {
     protected function render(): void {
         parent::render();
 
+        if (!empty($this->errorMessage)) {
+            HtmlBuilder::showTitle($this->errorMessage);
+            return;
+        }
+
         $this->setProductsToShow();
-        if(empty($this->products) && empty($this->productsToShow)) {
+        if(empty($this->products) || empty($this->productsToShow)) {
             HtmlBuilder::showTitle($this->noProductErrMsg);
             return;
         }

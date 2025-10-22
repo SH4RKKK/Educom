@@ -11,7 +11,6 @@ class Register extends BodyContent {
         parent::initialize();
         
         $this->form = new GeneralForm(
-            $_POST,
             'myForm',
             'Vul gegevens onderin aan om te registeren',
             [

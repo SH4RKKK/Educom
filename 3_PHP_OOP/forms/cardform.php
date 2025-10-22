@@ -5,6 +5,7 @@ class CardForm extends Form {
 
     public function __construct(int $itemId) {
         $this->itemId = $itemId;
+        $this->initialize();
         parent::__construct();
     }
 
@@ -14,6 +15,9 @@ class CardForm extends Form {
             ['label' => 'page', 'type' => 'hidden', 'value' => 'order'],
             ['label' => 'item_id', 'type' => 'hidden', 'value' => $this->itemId]
         ];
+
+        if (!empty($_GET['id'])) $this->fields[] = ['label' => 'id', 'type' => 'hidden', 'value' => $_GET['id']];
+
         $this->setPostButton('Bestel Nu!');
     }
 
@@ -25,6 +29,6 @@ class CardForm extends Form {
     }
 
     protected function renderField(array $field): void {
-        $this->renderInput($this->fieldMap['label'] ?? '', $field['type'] ?? 'text',$field['value'] ?? '');   
+        $this->renderInput($field['label'] ?? '', $field['type'] ?? 'text',$field['value'] ?? '');   
     }
 }

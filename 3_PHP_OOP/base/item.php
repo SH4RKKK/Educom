@@ -2,18 +2,19 @@
 require_once '../utility/HtmlBuilder.php';
 
 class Item {
-    private int $id,$amount;
+    private int $id;
     private float $price;
-    private string $name,$description,$imagePath;
+    private string $name,$imagePath;
+    private ?string $description = null;
+
     
     // PUBLIC
     public function __construct(array $item) {
         $this->id = $item['id'];
         $this->name = $item['name'];
-        $this->description = $item['description'];
+        if(!empty($item['description'])) $this->description = $item['description'];
         $this->price = $item['price'];
         $this->imagePath = $item['image_path'];
-        $this->amount = $item['amount'] ?? 0;
     }
 
     public function getId(): int {
@@ -34,9 +35,5 @@ class Item {
 
     public function getImagePath(): string {
         return $this->imagePath;
-    }
-    
-    public function getAmount(): int {
-        return $this->amount;
     }
 }

@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once '../controllers/Controller.php';
+require_once '../database/Database.php';
 
-$controller = new Controller();
+$database = new Database('localhost','website','root','');
+$controller = new Controller($database );
 $controller->showPage();

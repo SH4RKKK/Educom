@@ -10,9 +10,9 @@ abstract class Form {
     protected array $fields, $postData;
     protected ?FormValidator $validator = null;
 
-    public function __construct(array $postData = []) {
-        $this->postData = $postData;
-        $this->validator = new FormValidator($this->fields, $this->postData);
+    public function __construct() {
+        $this->postData = $_POST;
+        $this->validator = new FormValidator($this->fields);
     }
 
     public function renderForm(): void {

@@ -1,18 +1,21 @@
 <?php
 class FormValidator {
-    private array $fields,$postData,$fieldMap = [],$emptyFields = [];
+    private array $fields,$postData,$fieldMap = [],$emptyFields = [],$invalidFields = [];
     private bool $validated = false,$passwordsMatch = true;
 
-    public function __construct(array $fields, array $postData) {
+    public function __construct(array $fields, ?array $postData = null) {
         $this->fields = $fields;
-        $this->postData = $postData;
+        $this->postData = $postData ?? $_POST;
     }
 
     public function validate(): void {
         if (!$this->validated) {
             $this->buildFieldMap();
-            $this->checkEmptyFields();
-            $this->validatePasswordMatch();
+            if (!empty($this->postData)) {
+                $this->checkEmptyFields();
+                $this->validateFieldTypes();
+                $this->validatePasswordMatch();
+            }
             $this->validated = true;
         }
     }
@@ -25,9 +28,30 @@ class FormValidator {
     }
 
     private function checkEmptyFields(): void {
-        foreach ($this->postData as $key => $value) {
-            if (trim($value) === '') {
-                $this->emptyFields[] = $key;
+        foreach ($this->fieldMap as $label => $slugName) {
+            $field = $this->findFieldByLabel($label);
+            if ($field && $field['type'] !== 'hidden') {
+                if (!isset($this->postData[$slugName]) || trim($this->postData[$slugName]) === '') {
+                    $this->emptyFields[] = $slugName;
+                }
+            }
+        }
+    }
+
+    private function validateFieldTypes(): void {
+        foreach ($this->fieldMap as $label => $slugName) {
+            $field = $this->findFieldByLabel($label);
+            if ($field && isset($this->postData[$slugName]) && trim($this->postData[$slugName]) !== '') {
+                $value = $this->postData[$slugName];
+                $isValid = match($field['type']) {
+                    'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
+                    'number' => is_numeric($value),
+                    default => true
+                };
+                
+                if (!$isValid) {
+                    $this->invalidFields[] = $slugName;
+                }
             }
         }
     }
@@ -61,7 +85,11 @@ class FormValidator {
         if (!$this->validated) {
             $this->validate();
         }
-        return empty($this->emptyFields) && !empty($this->postData) && $this->passwordsMatch;
+        
+        return !empty($this->postData) 
+            && empty($this->emptyFields) 
+            && empty($this->invalidFields) 
+            && $this->passwordsMatch;
     }
 
     public function doPasswordsMatch(): bool {
@@ -83,6 +111,13 @@ class FormValidator {
             $this->validate();
         }
         return $this->fieldMap;
+    }
+
+    public function getInvalidFields(): array {
+        if (!$this->validated) {
+            $this->validate();
+        }
+        return $this->invalidFields;
     }
 
     private function slugify(string $text): string {

@@ -11,7 +11,6 @@ class Login extends BodyContent {
         parent::initialize();
 
         $this->form = new GeneralForm(
-            $_POST,
             'myForm',
             'Welkom terug',
             [

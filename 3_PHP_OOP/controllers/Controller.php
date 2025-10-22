@@ -1,6 +1,8 @@
 <?php
 require_once '../base/HtmlPage.php';
 require_once '../base/BodyContent.php';
+require_once '../base/Item.php';
+
 require_once '../pages/About.php';
 require_once '../pages/Cart.php';
 require_once '../pages/Contact.php';
@@ -11,8 +13,16 @@ require_once '../pages/Register.php';
 require_once '../pages/Webshop.php';
 
 class Controller {
-    private array $request,$items;
-    private BodyContent $body;
+    private array $request;
+    private $body;
+    private Database $database;
+    private string $error = '';
+    private int $productPerPage;
+
+    public function __construct(Database $database,int $productPerPage = 2) {
+        $this->database = $database;
+        $this->productPerPage = $productPerPage;
+    }
 
     private function getRequest(): void {
         $posted = ($_SERVER['REQUEST_METHOD']==='POST');
@@ -35,34 +45,21 @@ class Controller {
     private function handlePostRequest(): void {
         if(isset($_POST['email'])) $_POST['email'] = strtolower(trim($_POST['email']));
         switch ($this->request['page']) {
-            case 'checkout': /*
-                fetchItems($result);
-                $result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
+            case 'checkout': 
+                $this->setItems();
+
+                /*$result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
                 $result = array_merge($result, appendOrderToDatabase($request['db'], $_SESSION['user_id'], $result['cart']));
                 */
                 break;
-            case 'order': /*
+            case 'order':
                 $itemId = (int)($_POST['item_id']);
                 $amount = (int)($_POST['amount']);
 
-                if (!isset($_SESSION['orders'])) {
-                    $_SESSION['orders'] = [];
-                }
-
-                if (isset($_SESSION['orders'][$itemId])) {
-                    $_SESSION['orders'][$itemId] += $amount;
-                } else {
-                    $_SESSION['orders'][$itemId] = $amount;
-                }
-
-                if (isset($_POST['id'])) {
-                    $result['page'] = 'product';
-                    fetchItemDetails($result, (int)$_POST['id']);
-                } else {
-                    $result['page'] = 'webshop';
-                    fetchItems($result);
-                }
-                break;*/
+                if (!isset($_SESSION['orders'])) $_SESSION['orders'] = [];
+                isset($_SESSION['orders'][$itemId]) ? $_SESSION['orders'][$itemId] += $amount : $_SESSION['orders'][$itemId] = $amount;
+                isset($_POST['id']) ? $this->request['page'] = 'product' : $this->request['page'] = 'webshop';
+                break;
             case 'login':
                 $this->handleLogin();
                 break;
@@ -86,51 +83,27 @@ class Controller {
                 }
                 $this->request['page'] = 'login';
                 break;
-            case 'webshop':
-                //fetchItems($result);
-                break;
             case 'cart':
-                //fetchItems($result);
+                $this->setItems();
                 //$result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
                 break;
-            case 'product':/*
-                try {
-                    fetchItemDetails($result,$_GET['id']);
-                } catch (Throwable $e) {
-                    $result['message'] = 'Invalid product argument';
-                }*/
             default:
                 break;
         }
     }
 
     private function showResponse() : void {
-        switch($this->request['page']) {
-            case 'about':
-                $this->body = new About();
-                break;
-            case 'cart':
-                //$this->body = new Cart();
-                break;
-            case 'contact':
-                $this->body = new Contact();
-                break;
-            case 'login':
-                $this->body = new Login();
-                break;
-            case 'product':
-                //$this->body = new Product();
-                break;   
-            case 'register':
-                $this->body = new Register();
-                break;
-            case 'webshop':
-                //$this->body = new Webshop();
-                break;
-            case 'home':
-            default:
-                $this->body = new Home();
-                break;
+        if (!isset($this->body)) {
+            $this->body = match($this->request['page']) {
+                'about' => new About(),
+                'cart' => new Cart($this->getCartItems()),
+                'contact' => new Contact(),
+                'login' => new Login(),
+                'product' => new Product($this->getItemById($_GET['id'] ?? $_POST['id'] ?? 0)),
+                'register' => new Register(),
+                'webshop' => new Webshop($this->setItems(),$this->productPerPage,$this->error ?? ''),
+                default => new Home()
+            };
         }
 
         $page = new HtmlPage(
@@ -142,7 +115,7 @@ class Controller {
         );
 
         $page->show();
-    }
+}
 
     public final function showPage(): void {
         $this->getRequest();
@@ -151,23 +124,103 @@ class Controller {
     }
 
     private function handleLogin(): void {
-        $login = new Login();
-        if ($login->ValidateForm()) {
-            //handle login
+        $this->body = new Login();
+        if ($this->body->validateForm()) {
+            try {
+                $this->loginUser($_POST);
+                if(!empty($this->error)) $this->body->failForm($this->error);
+            } catch (Exception $e) {
+                $this->body->failForm('An error occurred: ' . $e->getMessage());
+            }
         }
     }
 
     private function handleRegister(): void {
-        $register = new Register();
-        if ($register->ValidateForm()) {
-            //handle register 
+        $this->body = new Register();
+        if ($this->body->validateForm()) {
+            try {
+                $this->registerUser($_POST);
+                if (!empty($this->error)) $this->body->failForm($this->error);
+            } catch (Exception $e) {
+                $this->body->failForm('An error occurred: ' . $e->getMessage());
+            }
         }
     }
 
     private function handleContact(): void {
         $contact = new Contact();
-        if ($contact->ValidateForm()) {
+        if ($contact->validateForm()) {
             // Not implemented in this case
         }
+    }
+
+    private function loginUser(array $post): void {
+        $user = $this->database->fetchUser($post['email']);
+        if (empty($user)) {
+            $this->error = 'E-mail niet gevonden';
+            return;
+        }
+
+        if (!password_verify($post['wachtwoord'], $user['password'])) {
+            $this->error = 'Incorrect wachtwoord';
+            return;
+        }
+
+        $_SESSION['username'] = $user['name'];
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['logged_in'] = true;
+    }
+
+    private function registerUser(array $post): void {
+        $user = $this->database->fetchUser($post['email']);
+        if (!empty($user)) {
+            $this->error = 'E-mail is al geregistreerd';
+            return;
+        }
+
+        $hashedPassword = password_hash($post['wachtwoord'], PASSWORD_DEFAULT);
+        $this->database->insertUser($post['naam'], $post['email'], $hashedPassword);
+    }
+
+    private function setItems(bool $includeDescription = false): array {
+        try {
+            $items = [];
+            foreach ($this->database->fetchItems($includeDescription) as $itemData) {
+                $items[] = new Item($itemData);
+            }
+            return $items;
+        } catch (Exception $e) {
+            $this->error = 'Failed to fetch items: ' .$e->getMessage();
+            return [];
+        }
+    }
+
+    private function getItemById(int $id): mixed {
+        $items = $this->setItems(true);
+        
+        foreach ($items as $item) {
+            if ($item->getId() === $id) {
+                return $item;
+            }
+        }
+        
+        return null;
+    }
+
+    private function getCartItems(): array {
+        $items = $this->setItems();
+        $orders = $_SESSION['orders'] ?? [];
+        $cartItems = [];
+        
+        foreach ($items as $item) {
+            if (isset($orders[$item->getId()])) {
+                $cartItems[] = [
+                    'item' => $item,
+                    'amount' => $orders[$item->getId()]
+                ];
+            }
+        }
+        
+        return $cartItems;
     }
 }
