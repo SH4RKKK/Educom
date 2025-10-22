@@ -1,8 +1,8 @@
 <?php
-require_once '../base/bodycontent.php';
-require_once '../base/webshopcard.php';
-require_once '../base/item.php';
-require_once '../base/pagination.php';
+require_once '../base/BodyContent.php';
+require_once '../base/WebshopCard.php';
+require_once '../base/Item.php';
+require_once '../base/Pagination.php';
 
 class Webshop extends BodyContent {
     private Pagination $pagination;
@@ -52,4 +52,3 @@ class Webshop extends BodyContent {
         $this->pagination->show();
     }
 }
-?>

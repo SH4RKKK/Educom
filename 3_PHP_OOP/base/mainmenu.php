@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/menu.php';
+require_once '../abstract/Menu.php';
 
 class MainMenu extends Menu {
     
@@ -38,4 +38,3 @@ class MainMenu extends Menu {
         $this->closeListItem();
     }
 }
-?>

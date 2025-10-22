@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/itemcard.php';
+require_once '../abstract/ItemCard.php';
 
 class WebshopCard extends ItemCard {
     private string $cardClass,$cardContentClass,$cardLinkClass,$cardActionClass,$productPage;
@@ -17,8 +17,7 @@ class WebshopCard extends ItemCard {
 
         $this->productPage = 'product';
 
-        $this->btnPage = 'login';
-        $this->btnMsg = 'Login om te bestellen!';
+        $this->setGetButton('Login om te bestellen!','login');
     }
 
     protected function render(): void {
@@ -41,4 +40,3 @@ class WebshopCard extends ItemCard {
         HtmlBuilder::closeDiv();
     }
 }
-?>

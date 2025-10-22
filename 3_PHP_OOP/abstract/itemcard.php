@@ -1,7 +1,7 @@
 <?php
-require_once '../forms/cardform.php';
-require_once '../base/item.php';
-require_once '../traits/getbutton.php';
+require_once '../forms/CardForm.php';
+require_once '../base/Item.php';
+require_once '../traits/GetButton.php';
 
 abstract class ItemCard {
     use GetButton;
@@ -25,4 +25,3 @@ abstract class ItemCard {
     abstract protected function initialize(): void;
     abstract protected function render(): void;
 }
-?>

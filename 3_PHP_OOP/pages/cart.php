@@ -1,8 +1,8 @@
 <?php
-require_once '../base/bodycontent.php';
-require_once '../base/item.php';
-require_once '../table/carttable.php';
-require_once '../base/cartsummary.php';
+require_once '../base/BodyContent.php';
+require_once '../base/Item.php';
+require_once '../table/CartTable.php';
+require_once '../base/CartSummary.php';
 
 class Cart extends BodyContent {
     private CartTable $table;
@@ -37,4 +37,3 @@ class Cart extends BodyContent {
         HtmlBuilder::closeDiv();
     }
 }
-?>

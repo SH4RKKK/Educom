@@ -1,8 +1,10 @@
 <?php
-require_once '../base/bodycontent.php';
-require_once '../forms/generalform.php';
+require_once '../base/BodyContent.php';
+require_once '../forms/GeneralForm.php';
+require_once '../traits/ValidateForm.php';
 
 class Contact extends BodyContent {
+    use ValidateForm;
     private GeneralForm $form;
     
     protected function initialize(): void {
@@ -27,13 +29,4 @@ class Contact extends BodyContent {
         parent::render();
         $this->form->renderForm();
     }
-
-    public function isFormValid(): bool {
-        return $this->form->isFormValid();
-    }
-
-    public function getValidatedData(): array {
-        return $this->form->getValidatedData();
-    }
 }
-?>

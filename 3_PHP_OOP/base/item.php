@@ -1,5 +1,5 @@
 <?php
-require_once '../utility/htmlelements.php';
+require_once '../utility/HtmlBuilder.php';
 
 class Item {
     private int $id,$amount;
@@ -40,4 +40,3 @@ class Item {
         return $this->amount;
     }
 }
-?>

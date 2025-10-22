@@ -1,7 +1,7 @@
 <?php
-require_once '../base/bodycontent.php';
-require_once '../base/productcard.php';
-require_once '../base/item.php';
+require_once '../base/BodyContent.php';
+require_once '../base/ProductCard.php';
+require_once '../base/Item.php';
 
 class Product extends BodyContent {
     private ?ProductCard $product;
@@ -24,4 +24,3 @@ class Product extends BodyContent {
         $this->product === null ? HtmlBuilder::showTitle($this->errProductMsg) : $this->product->show();
     }
 }
-?>

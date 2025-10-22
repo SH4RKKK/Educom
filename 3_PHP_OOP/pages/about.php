@@ -1,7 +1,7 @@
 <?php
-require_once '../base/bodycontent.php';
+require_once '../base/BodyContent.php';
 require_once '../base/MainMenu.php';
-require_once '../traits/bodymessage.php';
+require_once '../traits/BodyMessage.php';
 
 class About extends BodyContent {
     use BodyMessage;
@@ -21,4 +21,3 @@ class About extends BodyContent {
         $this->renderMessage();
     }
 }
-?>

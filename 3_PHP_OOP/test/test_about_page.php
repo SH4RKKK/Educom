@@ -1,10 +1,10 @@
 <?php
-require_once '../base/htmlPage.php';
-require_once '../pages/about.php';
+require_once '../base/HtmlPage.php';
+require_once '../pages/About.php';
 
 $about = new About();
 
-$page = new htmlPage(
+$page = new HtmlPage(
     "Saman's Whey",
     'Saman Ahmad',
     '../css/style.css',

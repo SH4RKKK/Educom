@@ -1,8 +1,10 @@
 <?php
-require_once '../base/bodycontent.php';
-require_once '../forms/generalform.php';
+require_once '../base/BodyContent.php';
+require_once '../forms/GeneralForm.php';
+require_once '../traits/ValidateForm.php';
 
 class Login extends BodyContent {
+    use ValidateForm;
     private GeneralForm $form;
     
     protected function initialize(): void {
@@ -27,4 +29,3 @@ class Login extends BodyContent {
         $this->form->renderForm();
     }
 }
-?>

@@ -1,6 +1,6 @@
 <?php
-require_once '../base/htmlPage.php';
-require_once '../pages/login.php';
+require_once '../base/HtmlPage.php';
+require_once '../pages/Login.php';
 $test = $_GET['test'] ?? 1;
 
 switch ($test) {
@@ -30,7 +30,7 @@ switch ($test) {
         $login = new Login();
 }
 
-$page = new htmlPage(
+$page = new HtmlPage(
     "Saman's Whey",
     'Saman Ahmad',
     '../css/style.css',

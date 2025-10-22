@@ -1,5 +1,5 @@
 <?php
-require_once '../utility/htmlelements.php';
+require_once '../utility/HtmlBuilder.php';
 
 abstract class Table {
     protected string $tableClass;
@@ -95,4 +95,3 @@ abstract class Table {
              HtmlBuilder::escape($content) . '</th>';
     }
 }
-?>

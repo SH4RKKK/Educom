@@ -1,7 +1,7 @@
 <?php
-require_once '../utility/htmlelements.php';
-require_once '../traits/postbutton.php';
-require_once '../validators/formvalidator.php';
+require_once '../utility/HtmlBuilder.php';
+require_once '../traits/PostButton.php';
+require_once '../validators/FormValidator.php';
 
 abstract class Form {
     use PostButton;
@@ -12,33 +12,30 @@ abstract class Form {
 
     public function __construct(array $postData = []) {
         $this->postData = $postData;
+        $this->validator = new FormValidator($this->fields, $this->postData);
     }
 
     public function renderForm(): void {
-        $this->validator = new FormValidator($this->fields, $this->postData);
-        $this->validator->validate();
         $this->render();
     }
     
     abstract protected function render(): void;
     abstract protected function renderField(array $field): void;
     
-    protected function renderFields(): void {
-        foreach ($this->fields as $field) {
-            $this->renderField($field);
-        }
-    }
-
-    protected function isValidated(): bool {
-        return $this->validator !== null && $this->validator->isValid();
-    }
-
+    //GETTERS
     protected function getEmptyFields(): array {
         return $this->validator?->getEmptyFields() ?? [];
     }
 
     protected function getFieldMap(): array {
         return $this->validator?->getFieldMap() ?? [];
+    }
+
+    //HELPER
+    protected function renderFields(): void {
+        foreach ($this->fields as $field) {
+            $this->renderField($field);
+        }
     }
 
     // BASIC FORM ELEMENTS
@@ -106,4 +103,3 @@ abstract class Form {
         };
     }
 }
-?>

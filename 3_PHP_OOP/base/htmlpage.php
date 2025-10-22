@@ -1,8 +1,8 @@
 <?php 
-require_once '../utility/htmlelements.php';
-require_once '../base/bodycontent.php';
+require_once '../utility/HtmlBuilder.php';
+require_once '../base/BodyContent.php';
 
-class htmlPage
+class HtmlPage
 { 
     // PRIVATE
     private string $title,$author,$pathToCSS,$class;

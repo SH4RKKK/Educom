@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/table.php';
+require_once '../abstract/Table.php';
 
 class CartTable extends Table {
     private float $total = 0;
@@ -47,6 +47,4 @@ class CartTable extends Table {
             $this->total += $this->calculateSubtotal($item);
         }
     }
-    
 }
-?>

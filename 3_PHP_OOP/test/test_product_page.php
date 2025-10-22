@@ -1,6 +1,6 @@
 <?php
-require_once '../base/htmlPage.php';
-require_once '../pages/product.php';
+require_once '../base/HtmlPage.php';
+require_once '../pages/Product.php';
 $test = $_GET['test'] ?? 1;
 session_start();
 
@@ -95,7 +95,7 @@ switch ($test) {
         break;
 }
 
-$page = new htmlPage(
+$page = new HtmlPage(
     "Saman's Whey",
     'Saman Ahmad',
     '../css/style.css',

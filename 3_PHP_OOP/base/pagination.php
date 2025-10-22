@@ -46,4 +46,3 @@ class Pagination {
         $this->totalPages = ceil($this->totalItems / $this->productPerPage);
     }
 }
-?>

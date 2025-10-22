@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/form.php';
+require_once '../abstract/Form.php';
 class CardForm extends Form {
     private int $itemId;
 
@@ -14,13 +14,13 @@ class CardForm extends Form {
             ['label' => 'page', 'type' => 'hidden', 'value' => 'order'],
             ['label' => 'item_id', 'type' => 'hidden', 'value' => $this->itemId]
         ];
-        $this->addButton('Bestel Nu!');
+        $this->setPostButton('Bestel Nu!');
     }
 
     protected function render(): void {
         $this->openForm();
         $this->renderFields();
-        $this->renderButtons();
+        $this->renderPostButton();
         $this->closeForm();
     }
 
@@ -28,4 +28,3 @@ class CardForm extends Form {
         $this->renderInput($this->fieldMap['label'] ?? '', $field['type'] ?? 'text',$field['value'] ?? '');   
     }
 }
-?>

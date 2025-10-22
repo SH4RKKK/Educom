@@ -1,5 +1,5 @@
 <?php
-require_once '../abstract/itemcard.php';
+require_once '../abstract/ItemCard.php';
 
 class ProductCard extends ItemCard {
     private string $cardClass,$cardContentClass,$cardTitleClass,$cardPriceClass,$cardDescriptionClass,$cardActionClass;
@@ -12,8 +12,7 @@ class ProductCard extends ItemCard {
         $this->cardDescriptionClass = 'product-description';
         $this->cardActionClass = 'action-container';
 
-        $this->btnPage = 'login';
-        $this->btnMsg = 'Login om te bestellen!';
+        $this->setGetButton('Login om te bestellen!','login');
     }
     
     protected function render(): void {
@@ -31,4 +30,3 @@ class ProductCard extends ItemCard {
         HtmlBuilder::closeDiv();
     }
 }
-?>

@@ -1,8 +1,7 @@
 <?php
 class FormValidator {
     private array $fields,$postData,$fieldMap = [],$emptyFields = [];
-    private bool $validated = false;
-    private bool $passwordsMatch = true;
+    private bool $validated = false,$passwordsMatch = true;
 
     public function __construct(array $fields, array $postData) {
         $this->fields = $fields;
@@ -86,13 +85,6 @@ class FormValidator {
         return $this->fieldMap;
     }
 
-    public function getSlugifiedName(string $label): string {
-        if (!$this->validated) {
-            $this->validate();
-        }
-        return $this->fieldMap[$label] ?? $this->slugify($label);
-    }
-
     private function slugify(string $text): string {
         $text = strtolower(trim($text));
         $text = str_replace([' ', '-', '_'], '', $text);
@@ -100,4 +92,3 @@ class FormValidator {
         return $text;
     }
 }
-?>

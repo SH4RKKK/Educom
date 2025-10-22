@@ -1,5 +1,5 @@
 <?php
-require_once '../traits/getbutton.php';
+require_once '../traits/GetButton.php';
 
 class CartSummary {
     use GetButton;
@@ -15,10 +15,8 @@ class CartSummary {
             ['label' => 'Shipping', 'amount' => $shipping, 'class' => 'summary-row'],
             ['label' => 'Totaal', 'amount' => $total + $shipping, 'class' => 'summary-total']
         ];
-
-        $this->btnPage = 'checkout';
-        $this->btnClass = 'checkout-btn';
-        $this->btnMsg = 'Afrekenen';
+        
+        $this->setGetButton('Afrekenen','checkout','checkout-btn');
     }
 
     public final function renderSummary(): void {
@@ -42,4 +40,3 @@ class CartSummary {
         HtmlBuilder::closeDiv();
     }
 }
-?>

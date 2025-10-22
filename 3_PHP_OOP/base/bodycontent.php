@@ -1,6 +1,6 @@
 <?php
-require_once '../utility/htmlelements.php';
-require_once '../base/mainmenu.php';
+require_once '../utility/HtmlBuilder.php';
+require_once '../base/MainMenu.php';
 
 class BodyContent {
     protected MainMenu $menu;
@@ -28,4 +28,3 @@ class BodyContent {
         $this->menu->show();
     }
 }
-?>

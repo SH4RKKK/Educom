@@ -1,5 +1,5 @@
 <?php
-require_once '../utility/htmlelements.php';
+require_once '../utility/HtmlBuilder.php';
 
 abstract class Menu {
     protected string $menuClass;
@@ -40,4 +40,3 @@ abstract class Menu {
         echo '</li>';
     }
 }
-?>

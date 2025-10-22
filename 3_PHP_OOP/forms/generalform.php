@@ -12,13 +12,13 @@ class GeneralForm extends Form {
         $this->formTitle = $formTitle;
         $this->fields = $fields;
         $this->title = $successTitle;
-        $this->addButton($btnMsg);
+        $this->setPostButton($btnMsg);
 
         parent::__construct($post);
     }
 
     protected function render(): void {
-        if ($this->isValidated()) {
+        if ($this->validator->isValid()) {
             HtmlBuilder::showTitle($this->title);
             return;
         }
@@ -26,10 +26,10 @@ class GeneralForm extends Form {
         $emptyFields = $this->getEmptyFields();
         $title = $this->formTitle;
         
-        if (!empty($this->postData) && !$this->validator->doPasswordsMatch()) {
-            $title = $this->passwordMismatchMsg;
-        } else if (!empty($emptyFields)) {
+        if (!empty($emptyFields)) {
             $title = $this->errTitle;
+        } else if (!empty($this->postData) && !$this->validator->doPasswordsMatch()) {
+            $title = $this->passwordMismatchMsg;
         }
 
         $this->openForm($this->formClass);
@@ -38,7 +38,7 @@ class GeneralForm extends Form {
         $this->closeLegend();
 
         $this->renderFields();
-        $this->renderButtons();
+        $this->renderPostButton();
         $this->closeForm();
     }
 
@@ -63,32 +63,7 @@ class GeneralForm extends Form {
         HtmlBuilder::newLine();
     }
 
-    public function validate(): void {
-        if ($this->validator === null) {
-            $this->validator = new FormValidator($this->fields, $this->postData);
-            $this->validator->validate();
-        }
-    }
-
     public function isFormValid(): bool {
-        $this->validate();
-        return $this->isValidated();
-    }
-
-    public function getValidatedData(): array {
-        $this->validate();
-        $fieldMap = $this->getFieldMap();
-        $data = [];
-        
-        foreach ($this->fields as $field) {
-            if ($field['type'] !== 'hidden') {
-                $label = $field['label'];
-                $slugName = $fieldMap[$label];
-                $data[$slugName] = $this->postData[$slugName] ?? '';
-            }
-        }
-        
-        return $data;
+        return $this->validator->isValid();
     }
 }
-?>
