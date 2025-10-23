@@ -12,12 +12,20 @@ require_once '../pages/Product.php';
 require_once '../pages/Register.php';
 require_once '../pages/Webshop.php';
 
+require_once '../models/UserModel.php';
+require_once '../models/ItemModel.php';
+require_once '../models/ShopModel.php';
+
 class Controller {
     private array $request;
     private $body;
     private Database $database;
-    private string $error = '';
     private int $productPerPage;
+
+    private ?UserModel $userModel = null;
+    private ?ItemModel $itemModel = null;
+    private ?ShopModel $shopModel = null;
+
     private const PUBLIC_PAGES = ['home', 'about', 'contact', 'webshop', 'product'];
     private const GUEST_ONLY_PAGES = ['login', 'register'];
     private const AUTH_ONLY_PAGES = ['cart', 'checkout', 'logout', 'order'];
@@ -88,8 +96,8 @@ class Controller {
                 $this->request['page'] = 'login';
                 break;
             case 'checkout': 
-                $cartItems = $this->getCartItems();
-                $this->error = $this->database->appendOrder($_SESSION['user_id'],$cartItems);
+                $cartItems = $this->getShopModel()->getCartItems($this->getItemModel()->getItems());
+                $this->getShopModel()->createOrder($_SESSION['user_id'],$cartItems);
                 $this->request['page'] = 'cart';
                 break;
             default:
@@ -101,12 +109,12 @@ class Controller {
         if (!isset($this->body)) {
             $this->body = match($this->request['page']) {
                 'about' => new About(),
-                'cart' => new Cart($this->getCartItems(),$this->error ?? ''),
+                'cart' => new Cart( $this->getShopModel()->getCartItems($this->getItemModel()->getItems()),$this->getShopModel()->getSuccesMsg() ?? $this->getShopModel()->getError() ?? ''),
                 'contact' => new Contact(),
                 'login' => new Login(),
-                'product' => new Product($this->getItemById($this->getRequestVar('id', $this->request['posted'], null, true))),
+                'product' => new Product($this->getItemModel()->getItemById($this->getRequestVar('id', $this->request['posted'], null, true))),
                 'register' => new Register(),
-                'webshop' => new Webshop($this->setItems(),$this->productPerPage,$this->error ?? ''),
+                'webshop' => new Webshop($this->getItemModel()->getItems(),$this->productPerPage,$this->error ?? ''),
                 default => new Home()
             };
         }
@@ -128,112 +136,6 @@ class Controller {
         $this->showResponse();
     }
 
-    private function handleLogin(): void {
-        $this->body = new Login();
-        if ($this->body->validateForm()) {
-            try {
-                $email = $this->getRequestVar('email', true);
-                $password = $this->getRequestVar('wachtwoord', true);
-                $this->loginUser($email, $password);
-                if(!empty($this->error)) $this->body->failForm($this->error);
-            } catch (Exception $e) {
-                $this->body->failForm('An error occurred: ' . $e->getMessage());
-            }
-        }
-    }
-
-    private function handleRegister(): void {
-        $this->body = new Register();
-        if ($this->body->validateForm()) {
-            try {
-                $name = $this->getRequestVar('naam', true);
-                $email = $this->getRequestVar('email', true);
-                $password = $this->getRequestVar('wachtwoord', true);
-                $this->registerUser($name, $email, $password);
-                if (!empty($this->error)) $this->body->failForm($this->error);
-            } catch (Exception $e) {
-                $this->body->failForm('An error occurred: ' . $e->getMessage());
-            }
-        }
-    }
-
-    private function handleContact(): void {
-        $contact = new Contact();
-        if ($contact->validateForm()) {
-            // Not implemented in this case
-        }
-    }
-
-    private function loginUser(string $email, string $password): void {
-        $user = $this->database->fetchUser($email);
-        if (empty($user)) {
-            $this->error = 'E-mail niet gevonden';
-            return;
-        }
-
-        if (!password_verify($password, $user['password'])) {
-            $this->error = 'Incorrect wachtwoord';
-            return;
-        }
-
-        $_SESSION['username'] = $user['name'];
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['logged_in'] = true;
-    }
-
-    private function registerUser(string $name, string $email, string $password): void {
-        $user = $this->database->fetchUser($email);
-        if (!empty($user)) {
-            $this->error = 'E-mail is al geregistreerd';
-            return;
-        }
-
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $this->database->insertUser($name, $email, $hashedPassword);
-    }
-
-    private function setItems(bool $includeDescription = false): array {
-        try {
-            $items = [];
-            foreach ($this->database->fetchItems($includeDescription) as $itemData) {
-                $items[] = new Item($itemData);
-            }
-            return $items;
-        } catch (Exception $e) {
-            $this->error = 'Failed to fetch items: ' .$e->getMessage();
-            return [];
-        }
-    }
-
-    private function getItemById(int $id): mixed {
-        $items = $this->setItems(true);
-        
-        foreach ($items as $item) {
-            if ($item->getId() === $id) {
-                return $item;
-            }
-        }
-        
-        return null;
-    }
-
-    private function getCartItems(): array {
-        $items = $this->setItems();
-        $orders = $_SESSION['orders'] ?? [];
-        $cartItems = [];
-        
-        foreach ($items as $item) {
-            if (isset($orders[$item->getId()])) {
-                $cartItems[] = [
-                    'item' => $item,
-                    'amount' => $orders[$item->getId()]
-                ];
-            }
-        }
-        
-        return $cartItems;
-    }
-
     private function isLoggedIn(): bool {
         return !empty($_SESSION['logged_in']);
     }
@@ -252,5 +154,63 @@ class Controller {
         }
         
         return false;
+    }
+
+    private function handleContact(): void {
+        $contact = new Contact();
+        if ($contact->validateForm()) {
+            // Not implemented in this case
+        }
+    }
+
+    private function handleLogin(): void {
+        $this->body = new Login();
+        if ($this->body->validateForm()) {
+            try {
+                $email = $this->getRequestVar('email', true);
+                $password = $this->getRequestVar('wachtwoord', true);
+                $this->getUserModel()->loginUser($email, $password);
+                $error = $this->getUserModel()->getError();
+                if(!empty($error)) $this->body->failForm($error);
+            } catch (Exception $e) {
+                $this->body->failForm('An error occurred: ' . $e->getMessage());
+            }
+        }
+    }
+    
+    private function handleRegister(): void {
+        $this->body = new Register();
+        if ($this->body->validateForm()) {
+            try {
+                $name = $this->getRequestVar('naam', true);
+                $email = $this->getRequestVar('email', true);
+                $password = $this->getRequestVar('wachtwoord', true);
+                $this->getUserModel()->registerUser($name, $email, $password);
+                $error = $this->getUserModel()->getError();
+                if (!empty($error)) $this->body->failForm($error);
+            } catch (Exception $e) {
+                $this->body->failForm('An error occurred: ' . $e->getMessage());
+            }
+        }
+    }
+
+    private function getUserModel(): UserModel {
+        if ($this->userModel === null) {
+            $this->userModel = new UserModel($this->database);
+        }
+        return $this->userModel;
+    }
+
+    private function getItemModel(): ItemModel {
+        if ($this->itemModel === null) {
+            $this->itemModel = new ItemModel($this->database);
+        }
+        return $this->itemModel;
+    }
+    private function getShopModel(): ShopModel {
+        if ($this->shopModel === null) {
+            $this->shopModel = new ShopModel($this->database);
+        }
+        return $this->shopModel;
     }
 }

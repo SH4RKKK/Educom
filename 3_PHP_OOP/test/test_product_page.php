@@ -90,7 +90,7 @@ switch ($test) {
         $webshop = new Product($items[1]);
         break;
     case 3:
-        $items = []; //Controller logic missing to handle empty items,
+        $items = [];
         $webshop = new Product($items[1] ?? null);
         break;
 }
