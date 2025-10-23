@@ -69,8 +69,10 @@ class Database {
             $this->conn->beginTransaction();
             
             $total = 0;
-            foreach ($cartItems as $item) {
-                $total += $item['price'] * $item['amount'];
+            foreach ($cartItems as $cartItem) {
+                $item = $cartItem['item'];
+                $amount = $cartItem['amount'];
+                $total += $item->getPrice() * $amount;
             }
             
             // Insert into orders table
@@ -85,19 +87,21 @@ class Database {
             
             // Insert into order_items table
             $query = "INSERT INTO order_items (order_id, item_id, amount, unit_price) VALUES (:order_id, :item_id, :amount, :unit_price)";
-            foreach ($cartItems as $item) {
+            foreach ($cartItems as $cartItem) {
+                $item = $cartItem['item'];
+                $amount = $cartItem['amount'];
+                
                 $params = [
                     'order_id' => $orderId,
-                    'item_id' => $item['id'],
-                    'amount' => $item['amount'],
-                    'unit_price' => $item['price']
+                    'item_id' => $item->getId(),
+                    'amount' => $amount,
+                    'unit_price' => $item->getPrice()
                 ];
                 $this->query($query, $params);
             }
             
             $this->conn->commit();
             unset($_SESSION['orders']);
-            
             return 'Order geplaatst! Order #' . $orderId;
             
         } catch (Throwable $e) {

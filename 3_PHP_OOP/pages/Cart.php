@@ -8,11 +8,11 @@ class Cart extends BodyContent {
     private CartTable $table;
     private CartSummary $summary;
     private float $shipping;
-    private string $cartTitle,$wrapperClass;
+    private string $cartTitle,$wrapperClass,$emptyCartMsg,$message;
 
-    public function __construct(array $products) {
-        //append amount to id before parsing
+    public function __construct(array $products,$message) {
         $this->table = new CartTable($products);
+        $this->message = $message;
         parent::__construct();
     }
     
@@ -22,7 +22,7 @@ class Cart extends BodyContent {
         $this->shipping = 5.95;
         $this->cartTitle = 'Winkel mandje';
         $this->wrapperClass = 'cart-wrapper';
-        
+        $this->emptyCartMsg = 'Geen producten in winkelmandje';
         $this->table->calculateTotal();
         $this->summary = new CartSummary($this->table->getTotal(),$this->shipping);
     }
@@ -31,9 +31,17 @@ class Cart extends BodyContent {
         parent::render();
         
         HtmlBuilder::openDiv($this->wrapperClass);
-        HtmlBuilder::showTitle($this->cartTitle);
-        $this->table->show();
-        $this->summary->renderSummary();
+
+        if(!empty($this->message)) {
+            HtmlBuilder::showTitle($this->message);
+        } elseif($this->table->hasData()) {
+            HtmlBuilder::showTitle($this->emptyCartMsg);
+        } else {
+            HtmlBuilder::showTitle($this->cartTitle);
+            $this->table->show();
+            $this->summary->renderSummary();
+        }
+        
         HtmlBuilder::closeDiv();
     }
 }

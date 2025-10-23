@@ -7,6 +7,7 @@ abstract class ItemCard {
     use GetButton;
     protected ?CardForm $form = null;
     protected Item $item;
+    protected string $cardClass,$cardContentClass,$cardActionClass;
     
     public function __construct(Item $item) {
         $this->item = $item;
@@ -21,7 +22,6 @@ abstract class ItemCard {
         $this->makeCardForm();
         $this->render();
     }
-
-    abstract protected function initialize(): void;
     abstract protected function render(): void;
+    abstract protected function initialize(): void;
 }

@@ -18,6 +18,9 @@ class Controller {
     private Database $database;
     private string $error = '';
     private int $productPerPage;
+    private const PUBLIC_PAGES = ['home', 'about', 'contact', 'webshop', 'product'];
+    private const GUEST_ONLY_PAGES = ['login', 'register'];
+    private const AUTH_ONLY_PAGES = ['cart', 'checkout', 'logout', 'order'];
 
     public function __construct(Database $database,int $productPerPage = 2) {
         $this->database = $database;
@@ -33,32 +36,35 @@ class Controller {
     } 
 
     private function getRequestVar(string $key, bool $frompost, $default="", bool $asnumber=FALSE){
-        $filter = $asnumber ? FILTER_SANITIZE_NUMBER_FLOAT : FILTER_SANITIZE_STRING;
+        $filter = $asnumber ? FILTER_SANITIZE_NUMBER_FLOAT : FILTER_SANITIZE_FULL_SPECIAL_CHARS;
         $result = filter_input(($frompost ? INPUT_POST : INPUT_GET), $key, $filter);
-        return ($result===FALSE) ? $default : $result;
-    } 
+        return ($result===FALSE || $result===NULL) ? $default : $result;
+    }
 
     private function validateRequest(): void {
+        if (!$this->isPageAllowed($this->request['page'])) {
+            $this->request['page'] = $this->isLoggedIn() ? 'home' : 'login';
+            return;
+        }
+        
         $this->request['posted'] ? $this->handlePostRequest() : $this->handleGetRequest();
     }
 
     private function handlePostRequest(): void {
-        if(isset($_POST['email'])) $_POST['email'] = strtolower(trim($_POST['email']));
-        switch ($this->request['page']) {
-            case 'checkout': 
-                $this->setItems();
+        $email = $this->getRequestVar('email', true);
+        if(!empty($email)) $_POST['email'] = strtolower(trim($email));
 
-                /*$result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
-                $result = array_merge($result, appendOrderToDatabase($request['db'], $_SESSION['user_id'], $result['cart']));
-                */
-                break;
+        switch ($this->request['page']) {
             case 'order':
-                $itemId = (int)($_POST['item_id']);
-                $amount = (int)($_POST['amount']);
+                $itemId = $this->getRequestVar('item_id', true, 0, true);
+                $amount = $this->getRequestVar('amount', true, 0, true);
+                $id = $this->getRequestVar('id', true, null, true);
 
                 if (!isset($_SESSION['orders'])) $_SESSION['orders'] = [];
                 isset($_SESSION['orders'][$itemId]) ? $_SESSION['orders'][$itemId] += $amount : $_SESSION['orders'][$itemId] = $amount;
-                isset($_POST['id']) ? $this->request['page'] = 'product' : $this->request['page'] = 'webshop';
+                
+                $this->request['page'] = !empty($id) ? 'product' : 'webshop';
+                if ($this->request['page'] === 'product') $_GET['id'] = $id;
                 break;
             case 'login':
                 $this->handleLogin();
@@ -77,15 +83,14 @@ class Controller {
     private function handleGetRequest(): void {
         switch ($this->request['page']) {
             case 'logout':
-                if (!empty($_SESSION['logged_in'])) {
-                    session_unset();
-                    session_destroy();
-                }
+                session_unset();
+                session_destroy();
                 $this->request['page'] = 'login';
                 break;
-            case 'cart':
-                $this->setItems();
-                //$result['cart'] = appendAmountToItem($_SESSION['orders'] ?? [], $result['items']);
+            case 'checkout': 
+                $cartItems = $this->getCartItems();
+                $this->error = $this->database->appendOrder($_SESSION['user_id'],$cartItems);
+                $this->request['page'] = 'cart';
                 break;
             default:
                 break;
@@ -96,10 +101,10 @@ class Controller {
         if (!isset($this->body)) {
             $this->body = match($this->request['page']) {
                 'about' => new About(),
-                'cart' => new Cart($this->getCartItems()),
+                'cart' => new Cart($this->getCartItems(),$this->error ?? ''),
                 'contact' => new Contact(),
                 'login' => new Login(),
-                'product' => new Product($this->getItemById($_GET['id'] ?? $_POST['id'] ?? 0)),
+                'product' => new Product($this->getItemById($this->getRequestVar('id', $this->request['posted'], null, true))),
                 'register' => new Register(),
                 'webshop' => new Webshop($this->setItems(),$this->productPerPage,$this->error ?? ''),
                 default => new Home()
@@ -127,7 +132,9 @@ class Controller {
         $this->body = new Login();
         if ($this->body->validateForm()) {
             try {
-                $this->loginUser($_POST);
+                $email = $this->getRequestVar('email', true);
+                $password = $this->getRequestVar('wachtwoord', true);
+                $this->loginUser($email, $password);
                 if(!empty($this->error)) $this->body->failForm($this->error);
             } catch (Exception $e) {
                 $this->body->failForm('An error occurred: ' . $e->getMessage());
@@ -139,7 +146,10 @@ class Controller {
         $this->body = new Register();
         if ($this->body->validateForm()) {
             try {
-                $this->registerUser($_POST);
+                $name = $this->getRequestVar('naam', true);
+                $email = $this->getRequestVar('email', true);
+                $password = $this->getRequestVar('wachtwoord', true);
+                $this->registerUser($name, $email, $password);
                 if (!empty($this->error)) $this->body->failForm($this->error);
             } catch (Exception $e) {
                 $this->body->failForm('An error occurred: ' . $e->getMessage());
@@ -154,14 +164,14 @@ class Controller {
         }
     }
 
-    private function loginUser(array $post): void {
-        $user = $this->database->fetchUser($post['email']);
+    private function loginUser(string $email, string $password): void {
+        $user = $this->database->fetchUser($email);
         if (empty($user)) {
             $this->error = 'E-mail niet gevonden';
             return;
         }
 
-        if (!password_verify($post['wachtwoord'], $user['password'])) {
+        if (!password_verify($password, $user['password'])) {
             $this->error = 'Incorrect wachtwoord';
             return;
         }
@@ -171,15 +181,15 @@ class Controller {
         $_SESSION['logged_in'] = true;
     }
 
-    private function registerUser(array $post): void {
-        $user = $this->database->fetchUser($post['email']);
+    private function registerUser(string $name, string $email, string $password): void {
+        $user = $this->database->fetchUser($email);
         if (!empty($user)) {
             $this->error = 'E-mail is al geregistreerd';
             return;
         }
 
-        $hashedPassword = password_hash($post['wachtwoord'], PASSWORD_DEFAULT);
-        $this->database->insertUser($post['naam'], $post['email'], $hashedPassword);
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $this->database->insertUser($name, $email, $hashedPassword);
     }
 
     private function setItems(bool $includeDescription = false): array {
@@ -222,5 +232,25 @@ class Controller {
         }
         
         return $cartItems;
+    }
+
+    private function isLoggedIn(): bool {
+        return !empty($_SESSION['logged_in']);
+    }
+
+    private function isPageAllowed(string $page): bool {
+        if (in_array($page, self::PUBLIC_PAGES)) {
+            return true;
+        }
+        
+        if (in_array($page, self::GUEST_ONLY_PAGES)) {
+            return !$this->isLoggedIn();
+        }
+        
+        if (in_array($page, self::AUTH_ONLY_PAGES)) {
+            return $this->isLoggedIn();
+        }
+        
+        return false;
     }
 }

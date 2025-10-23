@@ -48,6 +48,10 @@ abstract class Table {
         
         $this->closeTableBody();
     }
+
+    public function hasData(): bool {
+        return empty($this->data);
+    }
     
     // PRIVATE
     protected function openTableCell(string $class = ''): void {

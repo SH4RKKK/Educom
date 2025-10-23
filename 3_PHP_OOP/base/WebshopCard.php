@@ -2,7 +2,7 @@
 require_once '../abstract/ItemCard.php';
 
 class WebshopCard extends ItemCard {
-    private string $cardClass,$cardContentClass,$cardLinkClass,$cardActionClass,$productPage;
+    private string $cardLinkClass,$productPage;
     
     public function __construct(Item $item) {
         $this->item = $item;

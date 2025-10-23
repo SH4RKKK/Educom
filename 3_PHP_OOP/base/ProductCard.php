@@ -2,7 +2,7 @@
 require_once '../abstract/ItemCard.php';
 
 class ProductCard extends ItemCard {
-    private string $cardClass,$cardContentClass,$cardTitleClass,$cardPriceClass,$cardDescriptionClass,$cardActionClass;
+    private string $cardTitleClass,$cardPriceClass,$cardDescriptionClass;
 
     protected function initialize(): void {
         $this->cardClass = 'product-detail';

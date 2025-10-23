@@ -3,7 +3,7 @@ require_once '../abstract/Table.php';
 
 class CartTable extends Table {
     private float $total = 0;
-    private string $tableDivClass,$imageCellClass ;
+    private string $tableDivClass,$imageCellClass;
 
     protected function initialize(): void {
         $this->tableClass = 'cart-table';
@@ -19,11 +19,11 @@ class CartTable extends Table {
         $this->closeTableCell();
     }
     
-    protected function renderRow($item): void {
-        $this->makeTableCell('', $this->imageCellClass, $item->getName(), $item);
-        $this->makeTableCell('€' . number_format($item->getPrice(), 2, ',', '.'));
-        $this->makeTableCell((string)(int)$item->getAmount());
-        $this->makeTableCell('€' . number_format($this->calculateSubtotal($item), 2, ',', '.'));
+    protected function renderRow(array $cartItem): void {
+        $this->makeTableCell('', $this->imageCellClass, $cartItem['item']->getName(), $cartItem['item']);
+        $this->makeTableCell('€' . number_format($cartItem['item']->getPrice(), 2, ',', '.'));
+        $this->makeTableCell((string)(int)$cartItem['amount']);
+        $this->makeTableCell('€' . number_format($this->calculateSubtotal($cartItem), 2, ',', '.'));
     }
     
     public function getTotal(): float {
@@ -36,8 +36,8 @@ class CartTable extends Table {
         HtmlBuilder::closeDiv();
     }
 
-    private function calculateSubtotal(Item $item): float {
-        return $item->getPrice() * $item->getAmount();
+    private function calculateSubtotal(array $cartItem): float {
+        return $cartItem['item']->getPrice() * $cartItem['amount'];
     }
 
     public function calculateTotal(): void {
