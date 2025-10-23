@@ -20,7 +20,7 @@ class WebshopCard extends ItemCard {
         $this->setGetButton('Login om te bestellen!','login');
     }
 
-    protected function render(): void {
+    protected function renderItemCard(): void {
         HtmlBuilder::openDiv($this->cardClass);
 
         HtmlBuilder::openLink($this->productPage, $this->cardLinkClass, ['id' => $this->item->getId()]);
@@ -34,7 +34,7 @@ class WebshopCard extends ItemCard {
         HtmlBuilder::closeLink();
 
         HtmlBuilder::openDiv($this->cardActionClass);
-        $this->form !== null ? $this->form->renderForm() : $this->renderGetButton();
+        $this->form !== null ? $this->form->render() : $this->renderGetButton();
         HtmlBuilder::closeDiv();
 
         HtmlBuilder::closeDiv();

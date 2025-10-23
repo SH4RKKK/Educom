@@ -19,12 +19,16 @@ class CartSummary {
         $this->setGetButton('Afrekenen','checkout','checkout-btn');
     }
 
-    public final function renderSummary(): void {
+    private function render(): void {
         HtmlBuilder::openDiv($this->class);
         HtmlBuilder::showTitle($this->title);
         $this->renderSummarySection($this->summary);
         $this->renderGetButton();
         HtmlBuilder::closeDiv();
+    }
+
+    public final function renderSummary(): void {
+        $this->render();
     }
 
     private function renderSummarySection(array $rows): void {

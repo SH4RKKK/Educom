@@ -5,22 +5,21 @@ require_once '../base/Item.php';
 
 class Product extends BodyContent {
     private ?ProductCard $product;
-    private string $errProductMsg,$title;
+    private string $errProductMsg,$errorMessage;
 
-    public function __construct(?Item $product) {
+    public function __construct(?Item $product,string $errorMessage = '') {
         $product !== null ? $this->product = new ProductCard($product) : $this->product = null;
+        $this->errorMessage = $errorMessage;
         parent::__construct();
     }
     
     protected function initialize(): void {
         parent::initialize();
-
         $this->errProductMsg = 'Product bestaat niet';
-
     }
 
-    protected function render(): void {
-        parent::render();
-        $this->product === null ? HtmlBuilder::showTitle($this->errProductMsg) : $this->product->show();
+    protected function renderBody(): void {
+        parent::renderBody();
+        $this->product === null ? HtmlBuilder::showTitle($this->errorMessage ?? $this->errProductMsg) : $this->product->render();
     }
 }

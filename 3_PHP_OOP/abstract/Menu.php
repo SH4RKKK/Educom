@@ -9,8 +9,7 @@ abstract class Menu {
         $this->initialize();
     }
     
-    // Main render
-    public function show(): void {
+    public final function render(): void {
         $this->openUnorderedList($this->menuClass);
         
         foreach ($this->menuItems as $item) {
@@ -19,8 +18,7 @@ abstract class Menu {
         
         $this->closeUnorderedList();
     }
-    
-    // ABSTRACT
+
     abstract protected function initialize(): void;
     abstract protected function renderMenuItem(string $item): void;
     

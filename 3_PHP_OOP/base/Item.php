@@ -7,8 +7,6 @@ class Item {
     private string $name,$imagePath;
     private ?string $description = null;
 
-    
-    // PUBLIC
     public function __construct(array $item) {
         $this->id = $item['id'];
         $this->name = $item['name'];
@@ -17,23 +15,23 @@ class Item {
         $this->imagePath = $item['image_path'];
     }
 
-    public function getId(): int {
+    public final function getId(): int {
         return $this->id;
     }
 
-    public function getName(): string {
+    public final function getName(): string {
         return $this->name;
     }
 
-    public function getDescription(): string {
+    public final function getDescription(): string {
         return $this->description;
     }
 
-    public function getPrice(): float {
+    public final function getPrice(): float {
         return $this->price;
     }
 
-    public function getImagePath(): string {
+    public final function getImagePath(): string {
         return $this->imagePath;
     }
 }

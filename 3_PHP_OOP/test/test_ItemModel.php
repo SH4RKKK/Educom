@@ -9,16 +9,8 @@ $itemModel = new ItemModel($database);
 
 echo '<h2>ItemModel Tests</h2>';
 
-// Test fetchItems()
-echo '<h3>Fetch Items</h3>';
-$items = $itemModel->fetchItems(true);
-echo 'Found ' . count($items) . ' items<br>';
-foreach ($items as $item) {
-    echo '- ' . $item['name'] . ' (€' . $item['price'] . ')<br>';
-}
-
 // Test getItems()
-echo '<h3>Get Items as objects</h3>';
+echo '<h3>Get Items</h3>';
 $itemObjects = $itemModel->getItems(true);
 echo 'Found ' . count($itemObjects) . ' item objects<br>';
 foreach ($itemObjects as $item) {

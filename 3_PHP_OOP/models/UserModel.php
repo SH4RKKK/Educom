@@ -2,14 +2,15 @@
 require_once '../abstract/Model.php';
 class UserModel extends Model {
     private string $error = '';
-    public function fetchUser(string $email): ?array {
+    
+    private function fetchUser(string $email): ?array {
         $query = "SELECT * FROM users WHERE email = :email";
         $params = ['email' => $email];
         $result = $this->database->query($query, $params);
         return !empty($result) ? $result[0] : null;
     }
     
-    public function insertUser(string $name, string $email, string $hashedPassword): void {
+    private function insertUser(string $name, string $email, string $hashedPassword): void {
         $query = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
         $params = [
             'name' => $name,

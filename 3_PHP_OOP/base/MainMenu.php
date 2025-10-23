@@ -2,19 +2,12 @@
 require_once '../abstract/Menu.php';
 
 class MainMenu extends Menu {
-    
     protected function initialize(): void {
-        $this->menuItems = [
-            'HOME',
-            'ABOUT',
-            'CONTACT',
-            'WEBSHOP',
-        ];
-
+        $this->menuItems = ['HOME','ABOUT','CONTACT','WEBSHOP'];
         $this->menuClass = 'options';
     }
 
-    public function updateMenu(): void {
+    public final function updateMenu(): void {
         if (!empty($_SESSION['logged_in'])) {
             $this->menuItems[] = 'CART';
             $this->menuItems[] = 'LOGOUT';
@@ -28,11 +21,8 @@ class MainMenu extends Menu {
         $this->openListItem();
         HtmlBuilder::openLink($item);
         
-        if (!empty($_SESSION['logged_in']) && $item === 'LOGOUT') {
-            echo $item . ' ' . HtmlBuilder::escape($_SESSION['username']);
-        } else {
-            echo $item;
-        }
+        echo $item;
+        if (!empty($_SESSION['logged_in']) && $item === 'LOGOUT') echo ' ' . HtmlBuilder::escape($_SESSION['username']);
         
         HtmlBuilder::closeLink();
         $this->closeListItem();

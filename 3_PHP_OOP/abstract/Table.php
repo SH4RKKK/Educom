@@ -11,7 +11,7 @@ abstract class Table {
     }
     
     // Main render
-    public function show(): void {
+    public function render(): void {
         $this->openTable($this->tableClass);
         $this->renderHeader();
         $this->renderBody();
@@ -53,7 +53,6 @@ abstract class Table {
         return empty($this->data);
     }
     
-    // PRIVATE
     protected function openTableCell(string $class = ''): void {
         echo '<td' . ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }

@@ -18,10 +18,11 @@ abstract class ItemCard {
         !empty($_SESSION['logged_in']) ? $this->form = new CardForm($this->item->getId()) : $this->form = null;
     }
 
-    public final function show(): void {
+    public final function render(): void {
         $this->makeCardForm();
-        $this->render();
+        $this->renderItemCard();
     }
-    abstract protected function render(): void;
+    
+    abstract protected function renderItemCard(): void;
     abstract protected function initialize(): void;
 }

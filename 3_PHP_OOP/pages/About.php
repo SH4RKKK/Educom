@@ -8,7 +8,6 @@ class About extends BodyContent {
     
     protected function initialize(): void {
         parent::initialize();
-
         $this->bodyMessage = [
             ['text' => 'Ik ben Saman en ik vind software development leuk.'],
             ['text' => 'In mijn vrije tijd doe ik veel aan sporten zoals powerliften, streetliften, en calisthenics.'],
@@ -16,8 +15,8 @@ class About extends BodyContent {
         ];
     }
     
-    protected function render(): void {
-        parent::render();
+    protected function renderBody(): void {
+        parent::renderBody();
         $this->renderMessage();
     }
 }

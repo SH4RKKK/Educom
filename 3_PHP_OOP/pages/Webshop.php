@@ -17,13 +17,11 @@ class Webshop extends BodyContent {
         $this->totalItems = count($items);
         $this->productPerPage = $productPerPage;
         $this->errorMessage = $errorMessage;
-
         parent::__construct();
     }
     
     protected function initialize(): void {
         parent::initialize();
-
         $this->noProductErrMsg = 'Geen producten te koop :(';
         $this->pageClass = 'page';
         $this->pagination = new Pagination($this->totalItems,$this->productPerPage,'webshop','pagination', 'index');
@@ -34,8 +32,8 @@ class Webshop extends BodyContent {
         $this->productsToShow = array_slice($this->products, $startIndex, $this->productPerPage);
     }
 
-    protected function render(): void {
-        parent::render();
+    protected function renderBody(): void {
+        parent::renderBody();
 
         if (!empty($this->errorMessage)) {
             HtmlBuilder::showTitle($this->errorMessage);
@@ -51,10 +49,10 @@ class Webshop extends BodyContent {
         HtmlBuilder::openDiv($this->pageClass);
         foreach ($this->productsToShow as $product) {
             $this->card = new WebshopCard($product);
-            $this->card->show();
+            $this->card->render();
         }
         HtmlBuilder::closeDiv();
 
-        $this->pagination->show();
+        $this->pagination->render();
     }
 }

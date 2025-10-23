@@ -9,7 +9,6 @@ class Register extends BodyContent {
 
     protected function initialize(): void {
         parent::initialize();
-        
         $this->form = new GeneralForm(
             'myForm',
             'Vul gegevens onderin aan om te registeren',
@@ -25,8 +24,8 @@ class Register extends BodyContent {
         );
     }
     
-    protected function render(): void {
-        parent::render();
-        $this->form->renderForm();
+    protected function renderBody(): void {
+        parent::renderBody();
+        $this->form->render();
     }
 }

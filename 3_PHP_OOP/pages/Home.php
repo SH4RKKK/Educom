@@ -8,12 +8,11 @@ class Home extends BodyContent {
     
     protected function initialize(): void {
         parent::initialize();
-
         $this->bodyMessage = [['text' => 'Welkom op mijn eerste website']];
     }
 
-    protected function render(): void {
-        parent::render();
+    protected function renderBody(): void {
+        parent::renderBody();
         $this->renderMessage();
     }
 }

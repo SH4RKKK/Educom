@@ -15,7 +15,7 @@ class ProductCard extends ItemCard {
         $this->setGetButton('Login om te bestellen!','login');
     }
     
-    protected function render(): void {
+    protected function renderItemCard(): void {
         HtmlBuilder::openDiv($this->cardClass);
         HtmlBuilder::loadImage($this->item->getImagePath(), $this->item->getName(), $this->cardContentClass);
         HtmlBuilder::showTitle($this->item->getName(),$this->cardTitleClass);
@@ -24,7 +24,7 @@ class ProductCard extends ItemCard {
         if(!empty($this->item->getDescription())) HtmlBuilder::showMessage($this->item->getDescription(),$this->cardDescriptionClass);
 
         HtmlBuilder::openDiv( $this->cardActionClass);
-        $this->form !== null ? $this->form->renderForm() : $this->renderGetButton();
+        $this->form !== null ? $this->form->render() : $this->renderGetButton();
         HtmlBuilder::closeDiv();
         
         HtmlBuilder::closeDiv();

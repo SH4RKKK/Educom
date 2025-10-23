@@ -11,15 +11,9 @@ class Pagination {
         $this->paraName = $paraName;
     }
 
-    public function show(): void {
-        $this->render();
-    }
+    public final function render(): void {
+        if ($this->totalPages <= 1) return;
 
-    private function render(): void {
-        if ($this->totalPages <= 1) {
-            return;
-        }
-    
         HtmlBuilder::openDiv($this->class);
         for ($i = 1; $i <= $this->totalPages; $i++) {
             $activeClass = $i === $this->displayPage ? 'active' : '';

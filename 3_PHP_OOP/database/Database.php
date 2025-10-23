@@ -10,31 +10,24 @@ class Database {
         $this->password = $password;
     }
 
-    private function connect() {
+    private function connect(): void {
         try {
-            if (!$this->conn) {
-                $dsn = "mysql:host={$this->host};dbname={$this->dbname}";
-                $this->conn = new PDO($dsn, $this->username, $this->password);
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            }
-            return $this->conn;
+            $dsn = "mysql:host={$this->host};dbname={$this->dbname}";
+            $this->conn = new PDO($dsn, $this->username, $this->password);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (Throwable $e) {
             throw new Exception('Failed to connect to database: ' . $e->getMessage());
         }
     }
 
     public function getConnection(): PDO {
-        if (!isset($this->conn)) {
-            $this->connect();
-        }
+        if (!$this->conn) $this->connect();
         return $this->conn;
     }
 
-    public function query($query, $params = []) {
+    public function query($query, $params = []): array {
         try {
-            if (!$this->conn) {
-                $this->connect();
-            }
+            if (!$this->conn) $this->connect();
             $statement = $this->conn->prepare($query);
             $statement->execute($params);
             return $statement->fetchAll();

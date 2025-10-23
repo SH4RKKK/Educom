@@ -4,7 +4,7 @@ trait ValidateForm {
         return $this->form->isFormValid();
     }
 
-    public function failForm(string $errorMessage) {
-        $this->form->setErrorMessage($errorMessage);
+    public function invalidateForm(string $errorMessage) {
+        $this->form->failForm($errorMessage);
     }
 }

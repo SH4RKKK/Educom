@@ -21,7 +21,7 @@ class CardForm extends Form {
         $this->setPostButton('Bestel Nu!');
     }
 
-    protected function render(): void {
+    protected function renderForm(): void {
         $this->openForm();
         $this->renderFields();
         $this->renderPostButton();

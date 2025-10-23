@@ -18,7 +18,6 @@ class Cart extends BodyContent {
     
     protected function initialize(): void {
         parent::initialize();
-
         $this->shipping = 5.95;
         $this->cartTitle = 'Winkel mandje';
         $this->wrapperClass = 'cart-wrapper';
@@ -27,8 +26,8 @@ class Cart extends BodyContent {
         $this->summary = new CartSummary($this->table->getTotal(),$this->shipping);
     }
 
-    protected function render(): void {
-        parent::render();
+    protected function renderBody(): void {
+        parent::renderBody();
         
         HtmlBuilder::openDiv($this->wrapperClass);
 
@@ -38,7 +37,7 @@ class Cart extends BodyContent {
             HtmlBuilder::showTitle($this->emptyCartMsg);
         } else {
             HtmlBuilder::showTitle($this->cartTitle);
-            $this->table->show();
+            $this->table->render();
             $this->summary->renderSummary();
         }
         

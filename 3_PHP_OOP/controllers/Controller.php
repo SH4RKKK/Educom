@@ -112,9 +112,9 @@ class Controller {
                 'cart' => new Cart( $this->getShopModel()->getCartItems($this->getItemModel()->getItems()),$this->getShopModel()->getSuccesMsg() ?? $this->getShopModel()->getError() ?? ''),
                 'contact' => new Contact(),
                 'login' => new Login(),
-                'product' => new Product($this->getItemModel()->getItemById($this->getRequestVar('id', $this->request['posted'], null, true))),
+                'product' => new Product($this->getItemModel()->getItemById($this->getRequestVar('id', $this->request['posted'], null, true)),$this->getItemModel()->getError ?? ''),
                 'register' => new Register(),
-                'webshop' => new Webshop($this->getItemModel()->getItems(),$this->productPerPage,$this->error ?? ''),
+                'webshop' => new Webshop($this->getItemModel()->getItems(),$this->productPerPage,$this->getItemModel()->getError ?? ''),
                 default => new Home()
             };
         }
@@ -162,7 +162,7 @@ class Controller {
             // Not implemented in this case
         }
     }
-
+    
     private function handleLogin(): void {
         $this->body = new Login();
         if ($this->body->validateForm()) {
@@ -171,9 +171,9 @@ class Controller {
                 $password = $this->getRequestVar('wachtwoord', true);
                 $this->getUserModel()->loginUser($email, $password);
                 $error = $this->getUserModel()->getError();
-                if(!empty($error)) $this->body->failForm($error);
+                if(!empty($error)) $this->body->invalidateForm($error);
             } catch (Exception $e) {
-                $this->body->failForm('An error occurred: ' . $e->getMessage());
+                $this->body->invalidateForm('An error occurred: ' . $e->getMessage());
             }
         }
     }
@@ -187,9 +187,9 @@ class Controller {
                 $password = $this->getRequestVar('wachtwoord', true);
                 $this->getUserModel()->registerUser($name, $email, $password);
                 $error = $this->getUserModel()->getError();
-                if (!empty($error)) $this->body->failForm($error);
+                if (!empty($error)) $this->body->invalidateForm($error);
             } catch (Exception $e) {
-                $this->body->failForm('An error occurred: ' . $e->getMessage());
+                $this->body->invalidateForm('An error occurred: ' . $e->getMessage());
             }
         }
     }

@@ -4,11 +4,9 @@ require_once '../base/BodyContent.php';
 
 class HtmlPage
 { 
-    // PRIVATE
     private string $title,$author,$pathToCSS,$class;
     protected BodyContent $bodyContent;
 
-    // PUBLIC
     public function __construct(string $title, string $author, string $pathToCSS, string $class = '', BodyContent $bodyContent)
     {
         $this->title = $title;
@@ -35,7 +33,6 @@ class HtmlPage
         $this->closeHTML();
     }  
 
-    // PROTECTED
     protected function showHeadContent(): void
     { 
         if ($this->title) echo '<title>'.HtmlBuilder::escape($this->title).'</title>'; 
@@ -48,9 +45,8 @@ class HtmlPage
         echo '&copy ' . date("Y") . ' ' . HtmlBuilder::escape($this->author);
     }
     
-    // PRIVATE
     private function showBodyContent(): void {
-        $this->bodyContent->show();
+        $this->bodyContent->render();
     }
 
     private function openHTML(): void {

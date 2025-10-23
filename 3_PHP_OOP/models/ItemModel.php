@@ -3,7 +3,8 @@ require_once '../abstract/Model.php';
 require_once '../base/Item.php';
 
 class ItemModel extends Model {
-    public function fetchItems(bool $includeDescription = false): array {
+    private string $error = '';
+    private function fetchItems(bool $includeDescription = false): array {
         $columns = 
             $includeDescription 
             ? "id, name, price, image_path, description" 
@@ -22,6 +23,7 @@ class ItemModel extends Model {
             }
             return $items;
         } catch (Exception $e) {
+            $this->error = 'Error getting items: ' . $e->getMessage();
             return [];
         }
     }
@@ -32,5 +34,9 @@ class ItemModel extends Model {
         $result = $this->database->query($query, $params);
         
         return !empty($result) ? new Item($result[0]) : null;
+    }
+
+    public function getError(): string {
+        return $this->error;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 class FormValidator {
-    private array $fields,$postData,$fieldMap = [],$emptyFields = [],$invalidFields = [];
-    private bool $validated = false,$passwordsMatch = true;
+    private array $fields,$postData,$errors = [];
+    private bool $validated = false;
 
     public function __construct(array $fields, ?array $postData = null) {
         $this->fields = $fields;
@@ -9,118 +9,71 @@ class FormValidator {
     }
 
     public function validate(): void {
-        if (!$this->validated) {
-            $this->buildFieldMap();
-            if (!empty($this->postData)) {
-                $this->checkEmptyFields();
-                $this->validateFieldTypes();
-                $this->validatePasswordMatch();
-            }
-            $this->validated = true;
-        }
+        if ($this->validated || empty($this->postData)) return;
+        
+        $this->validateFields();
+        $this->validatePasswordMatch();
+        $this->validated = true;
     }
 
-    private function buildFieldMap(): void {
+    private function validateFields(): void {
         foreach ($this->fields as $field) {
-            $label = $field['label'];
-            $this->fieldMap[$label] = $this->slugify($label);
-        }
-    }
-
-    private function checkEmptyFields(): void {
-        foreach ($this->fieldMap as $label => $slugName) {
-            $field = $this->findFieldByLabel($label);
-            if ($field && $field['type'] !== 'hidden') {
-                if (!isset($this->postData[$slugName]) || trim($this->postData[$slugName]) === '') {
-                    $this->emptyFields[] = $slugName;
-                }
+            if ($field['type'] === 'hidden') continue;
+            
+            $name = self::slugify($field['label']);
+            $value = trim($this->postData[$name] ?? '');
+            
+            if ($value === '') {
+                $this->errors[$name] = 'empty';
+                continue;
             }
-        }
-    }
-
-    private function validateFieldTypes(): void {
-        foreach ($this->fieldMap as $label => $slugName) {
-            $field = $this->findFieldByLabel($label);
-            if ($field && isset($this->postData[$slugName]) && trim($this->postData[$slugName]) !== '') {
-                $value = $this->postData[$slugName];
-                $isValid = match($field['type']) {
-                    'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
-                    'number' => is_numeric($value),
-                    default => true
-                };
-                
-                if (!$isValid) {
-                    $this->invalidFields[] = $slugName;
-                }
+            
+            if (!$this->isValidType($field['type'], $value)) {
+                $this->errors[$name] = 'invalid';
             }
         }
     }
 
     private function validatePasswordMatch(): void {
-        $passwordFields = [];
-        foreach ($this->fieldMap as $label => $slugName) {
-            $field = $this->findFieldByLabel($label);
-            if ($field && $field['type'] === 'password') {
-                $passwordFields[] = $slugName;
-            }
-        }
+        $passwords = array_filter($this->fields, fn($f) => $f['type'] === 'password');
+        if (count($passwords) !== 2) return;
 
-        if (count($passwordFields) === 2) {
-            $password1 = $this->postData[$passwordFields[0]] ?? '';
-            $password2 = $this->postData[$passwordFields[1]] ?? '';
-            $this->passwordsMatch = ($password1 === $password2);
-        }
+        $values = array_map(fn($f) => $this->postData[self::slugify($f['label'])] ?? '', $passwords);
+        if ($values[0] !== $values[1]) $this->errors['password_match'] = 'mismatch';
     }
 
-    private function findFieldByLabel(string $label): ?array {
-        foreach ($this->fields as $field) {
-            if ($field['label'] === $label) {
-                return $field;
-            }
-        }
-        return null;
+    private function isValidType(string $type, string $value): bool {
+        return match($type) {
+            'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
+            'number' => is_numeric($value),
+            default => true
+        };
     }
 
-    public function isValid(): bool {
-        if (!$this->validated) {
-            $this->validate();
-        }
-        
-        return !empty($this->postData) 
-            && empty($this->emptyFields) 
-            && empty($this->invalidFields) 
-            && $this->passwordsMatch;
+    public final function isValid(): bool {
+        if (!$this->validated) $this->validate();
+        return empty($this->errors);
     }
 
-    public function doPasswordsMatch(): bool {
-        if (!$this->validated) {
-            $this->validate();
-        }
-        return $this->passwordsMatch;
+    public function getErrors(): array {
+        if (!$this->validated) $this->validate();
+        return $this->errors;
+    }
+
+    public final function doPasswordsMatch(): bool {
+        if (!$this->validated) $this->validate();
+        return !isset($this->errors['password_match']);
     }
 
     public function getEmptyFields(): array {
-        if (!$this->validated) {
-            $this->validate();
-        }
-        return $this->emptyFields;
-    }
-
-    public function getFieldMap(): array {
-        if (!$this->validated) {
-            $this->validate();
-        }
-        return $this->fieldMap;
+        return array_keys(array_filter($this->errors, fn($e) => $e === 'empty'));
     }
 
     public function getInvalidFields(): array {
-        if (!$this->validated) {
-            $this->validate();
-        }
-        return $this->invalidFields;
+        return array_keys(array_filter($this->errors, fn($e) => $e === 'invalid'));
     }
 
-    private function slugify(string $text): string {
+    public static function slugify(string $text): string {
         $text = strtolower(trim($text));
         $text = str_replace([' ', '-', '_'], '', $text);
         $text = preg_replace('/[^a-z0-9]/', '', $text);

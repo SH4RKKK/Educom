@@ -15,11 +15,11 @@ abstract class Form {
         $this->validator = new FormValidator($this->fields);
     }
 
-    public function renderForm(): void {
-        $this->render();
+    public final function render(): void {
+        $this->renderForm();
     }
     
-    abstract protected function render(): void;
+    abstract protected function renderForm(): void;
     abstract protected function renderField(array $field): void;
     
     //GETTERS
@@ -27,8 +27,12 @@ abstract class Form {
         return $this->validator?->getEmptyFields() ?? [];
     }
 
-    protected function getFieldMap(): array {
-        return $this->validator?->getFieldMap() ?? [];
+    protected function getInvalidFields(): array {
+        return $this->validator?->getInvalidFields() ?? [];
+    }
+
+    protected function getErrors(): array {
+        return $this->validator?->getErrors() ?? [];
     }
 
     //HELPER
@@ -83,7 +87,7 @@ abstract class Form {
              '</textarea>';
     }
     
-    protected function makeEmailField(string $name, string $value = '', string $class = ''): void {
+    private function makeEmailField(string $name, string $value = '', string $class = ''): void {
         echo '<input type="email" name="' . HtmlBuilder::escape($name) . '" value="' . HtmlBuilder::escape($value) . '"' .
              ($class ? ' class="' . HtmlBuilder::escape($class) . '"' : '') . '>';
     }

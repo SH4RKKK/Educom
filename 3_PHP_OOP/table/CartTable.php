@@ -11,7 +11,8 @@ class CartTable extends Table {
         $this->tableDivClass = 'cart-items';
         $this->imageCellClass = 'cart-product';
     }
-    protected function makeTableCell(string $data = '', string $class = '', string $span = '', ?Item $item = null): void {
+
+    private function makeTableCell(string $data = '', string $class = '', string $span = '', ?Item $item = null): void {
         $this->openTableCell($class);
         if (!empty($item))HtmlBuilder::loadImage($item->getImagePath(), $item->getName());
         echo HtmlBuilder::escape($data);
@@ -26,13 +27,13 @@ class CartTable extends Table {
         $this->makeTableCell('€' . number_format($this->calculateSubtotal($cartItem), 2, ',', '.'));
     }
     
-    public function getTotal(): float {
+    public final function getTotal(): float {
         return $this->total;
     }
 
-    public function show(): void {
+    public final function render(): void {
         HtmlBuilder::openDiv($this->tableDivClass);
-        parent::show();
+        parent::render();
         HtmlBuilder::closeDiv();
     }
 
@@ -40,9 +41,8 @@ class CartTable extends Table {
         return $cartItem['item']->getPrice() * $cartItem['amount'];
     }
 
-    public function calculateTotal(): void {
+    public final function calculateTotal(): void {
         $this->total = 0;
-        
         foreach ($this->data as $item) {
             $this->total += $this->calculateSubtotal($item);
         }
