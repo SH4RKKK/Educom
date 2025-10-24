@@ -1,5 +1,5 @@
 <?php
-//define('ALLOW_ACCESS',true);
+define('ALLOW_ACCESS',true);
 
 if (!defined('ALLOW_ACCESS')) {
     http_response_code(403);
@@ -108,6 +108,21 @@ $sql = "CREATE TABLE IF NOT EXISTS order_items (
 )";
 if (mysqli_query($conn, $sql)) {
     echo 'order_items created successfully!<br>';
+} else {
+    echo 'Error creating order_items: ' . mysqli_error($conn) . '<br>';
+}
+
+//Items ratings table
+$sql = "CREATE TABLE IF NOT EXISTS item_ratings (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,              
+    item_id INT UNSIGNED NOT NULL,                  
+    user_id INT UNSIGNED NOT NULL,
+    rating INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (item_id) REFERENCES items(id)
+)";
+if (mysqli_query($conn, $sql)) {
+    echo 'item_ratings created successfully!<br>';
 } else {
     echo 'Error creating order_items: ' . mysqli_error($conn) . '<br>';
 }

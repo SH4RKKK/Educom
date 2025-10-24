@@ -23,6 +23,8 @@ class ProductCard extends ItemCard {
         HtmlBuilder::showMessage('€' . number_format($this->item->getPrice(), 2, ',', ''),$this->cardPriceClass);
         if(!empty($this->item->getDescription())) HtmlBuilder::showMessage($this->item->getDescription(),$this->cardDescriptionClass);
 
+        //Rating render here
+
         HtmlBuilder::openDiv( $this->cardActionClass);
         $this->form !== null ? $this->form->render() : $this->renderGetButton();
         HtmlBuilder::closeDiv();

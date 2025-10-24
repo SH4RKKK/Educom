@@ -3,11 +3,6 @@ require_once '../abstract/ItemCard.php';
 
 class WebshopCard extends ItemCard {
     private string $cardLinkClass,$productPage;
-    
-    public function __construct(Item $item) {
-        $this->item = $item;
-        $this->initialize();
-    }
 
     protected function initialize(): void {
         $this->cardClass = 'card';
@@ -33,6 +28,8 @@ class WebshopCard extends ItemCard {
 
         HtmlBuilder::closeLink();
 
+        //Rating render here
+        
         HtmlBuilder::openDiv($this->cardActionClass);
         $this->form !== null ? $this->form->render() : $this->renderGetButton();
         HtmlBuilder::closeDiv();
