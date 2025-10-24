@@ -42,7 +42,6 @@ class ItemModel extends Model {
             if (empty($result)) {
                 return [
                     'success' => false,
-                    'message' => 'Product bestaat niet!!!',
                     'item' => null
                 ];
             }
