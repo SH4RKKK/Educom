@@ -2,7 +2,6 @@
 require_once '../base/HtmlPage.php';
 require_once '../base/BodyContent.php';
 require_once '../base/Item.php';
-require_once '../base/ItemRating.php';
 
 require_once '../pages/About.php';
 require_once '../pages/Cart.php';
@@ -16,23 +15,21 @@ require_once '../pages/Webshop.php';
 require_once '../models/UserModel.php';
 require_once '../models/ItemModel.php';
 require_once '../models/ShopModel.php';
-require_once '../models/RatingModel.php';
 
 class Controller {
     private array $request;
     private $body;
     private Database $database;
     private int $productPerPage;
-    private string $orderMsg = '';
+    private string $message = '';
 
     private ?UserModel $userModel = null;
     private ?ItemModel $itemModel = null;
     private ?ShopModel $shopModel = null;
-    private ?RatingModel $ratingModel = null;
 
     private const PUBLIC_PAGES = ['home', 'about', 'contact', 'webshop', 'product'];
     private const GUEST_ONLY_PAGES = ['login', 'register'];
-    private const AUTH_ONLY_PAGES = ['cart', 'checkout', 'logout', 'order'];
+    private const AUTH_ONLY_PAGES = ['cart', 'checkout', 'logout', 'order','rating'];
 
     public function __construct(Database $database,int $productPerPage = 2) {
         $this->database = $database;
@@ -87,6 +84,12 @@ class Controller {
             case 'contact':
                 $this->handleContact();
                 break;
+            case 'rating':
+                $id = $this->getRequestVar('id', true, null, true);
+                $this->request['page'] = !empty($id) ? 'product' : 'webshop';
+                if ($this->request['page'] === 'product') $_GET['id'] = $id;
+                $this->message = $this->handleRating();
+                break;
             default:
                 break;
         }
@@ -105,7 +108,7 @@ class Controller {
                     $cartItems = $this->getShopModel()->getCartItems($items['items']);
                     $result = $this->getShopModel()->createOrder($_SESSION['user_id'], $cartItems);
                     if ($result['success'])  unset($_SESSION['orders']); 
-                    $this->orderMsg = $result['message'];
+                    $this->message = $result['message'];
                 }
                 $this->request['page'] = 'cart';
                 break;
@@ -114,7 +117,7 @@ class Controller {
         }
     }
 
-    private function showResponse() : void { //Modify logic to create pages in request
+    private function showResponse() : void {
         if (!isset($this->body)) {
             $this->body = match($this->request['page']) {
                 'about' => new About(),
@@ -149,59 +152,63 @@ class Controller {
         $itemsResult = $this->getItemModel()->getItems();
         $items = $itemsResult['items'] ?? [];
         $cartItems = $this->getShopModel()->getCartItems($items);
-        return new Cart($cartItems, $this->orderMsg ?? '');
+        return new Cart($cartItems, $this->message ?? '');
     }
     
-    //Need to check this
     private function createProductPage(): Product {
-        $productId = $this->getRequestVar('id', $this->request['posted'], null, true);
-        $productResult = $this->getItemModel()->getItemById($productId);
+        try {
+            $productId = $this->getRequestVar('id', $this->request['posted'], 0, true);
+            $productResult = $this->getItemModel()->getItemById($productId, true, true);
         
-        $item = $productResult['item'] ?? null;
-        $itemError = $productResult['message'] ?? '';
-        
-        // Initialize rating data
-        $rating = null;
-        $ratingError = '';
-        $canRate = false;
-        
-        if ($item !== null) {
-            // Get rating for this item
-            $ratingResult = $this->getRatingModel()->fetchRating($productId);
-            $rating = $ratingResult['success'] ? $ratingResult['rating'] : null;
-            $ratingError = $ratingResult['success'] ? '' : $ratingResult['message'];
+            $item = $productResult['item'] ?? null;
+            $itemError = $productResult['message'] ?? '';
             
-            // Check if user can rate (only if logged in)
-            if ($this->isLoggedIn()) {
-                $userId = $_SESSION['user_id'];
-                $hasOrdered = $this->getRatingModel()->hasUserOrderedItem($userId, $productId);
-                $hasRated = $this->getRatingModel()->hasUserRatedItem($userId, $productId);
-                $canRate = $hasOrdered && !$hasRated;
+            [$canRate, $ratingError] = $this->getUserRatingStatus($item);
+            return new Product($item, $itemError, $canRate, $ratingError, $this->message ?? '');
+        } catch (Exception $e) {
+            return new Product(null, $e->getMessage(), false);
+        }
+    }
+    
+    private function getUserRatingStatus(?Item $item): array {
+        $canRate = false;
+        $ratingError = '';
+    
+        if ($item === null) {
+            return [$canRate, $ratingError];
+        }
+    
+        if ($this->isLoggedIn()) {
+            $hasOrdered = $this->getItemModel()->hasUserOrderedItem($_SESSION['user_id'], $item->getId());
+            $hasRated = $this->getItemModel()->hasUserRatedItem($_SESSION['user_id'], $item->getId());
+            
+            $canRate = $hasOrdered && !$hasRated;
+            
+            if (!$hasOrdered) {
+                $ratingError = 'Je moet het product bestellen voordat je het kan raten!';
+            } elseif ($hasRated) {
+                $ratingError = 'Je hebt het product al een rating gegeven!';
             }
         }
-        
-        return new Product(
-            $item,
-            $itemError,
-            new ItemRating($rating, $ratingError, $canRate)
-        );
-    }
     
-    // Add getRatingModel method
-    private function getRatingModel(): RatingModel {
-        if ($this->ratingModel === null) {
-            $this->ratingModel = new RatingModel($this->database);
-        }
-        return $this->ratingModel;
+        return [$canRate, $ratingError];
     }
     
     private function createWebshopPage(): Webshop {
-        $itemsResult = $this->getItemModel()->getItems();
-        return new Webshop(
-            $itemsResult['items'] ?? [],
-            $this->productPerPage,
-            $itemsResult['message'] ?? ''
-        );
+        $itemsResult = $this->getItemModel()->getItems(false, true);
+        $items = $itemsResult['items'] ?? [];
+        
+        $itemsWithRatingStatus = [];
+        foreach ($items as $item) {
+            [$canRate, $ratingError] = $this->getUserRatingStatus($item);
+            $itemsWithRatingStatus[] = [
+                'item' => $item,
+                'can_rate' => $canRate,
+                'rating_error' => $ratingError
+            ];
+        }
+        
+        return new Webshop($itemsWithRatingStatus,$this->productPerPage,$itemsResult['message'] ?? '',$this->message ?? '');
     }
 
     private function isLoggedIn(): bool {
@@ -270,6 +277,27 @@ class Controller {
         }
     }
 
+    private function handleRating(): string {
+        try {
+            $itemId = $this->getRequestVar('item_id', $this->request['posted'], 0, true);
+            $rating = $this->getRequestVar('rating', $this->request['posted'], 0, true);
+    
+            if ($rating < 1 || $rating > 5) return 'Invalid rating range';
+    
+            $hasOrdered = $this->getItemModel()->hasUserOrderedItem($_SESSION['user_id'], $itemId);
+            $hasRated = $this->getItemModel()->hasUserRatedItem($_SESSION['user_id'], $itemId);
+    
+            if ($hasOrdered && !$hasRated) {
+                $this->getItemModel()->insertRating($rating, $_SESSION['user_id'], $itemId);
+                return 'Bedankt voor jouw rating!';
+            }
+    
+            return '';
+        } catch (Exception $e) {
+            return 'Error adding rating: ' . $e->getMessage();
+        }
+    }
+
     private function getUserModel(): UserModel {
         if ($this->userModel === null) {
             $this->userModel = new UserModel($this->database);
@@ -283,17 +311,11 @@ class Controller {
         }
         return $this->itemModel;
     }
+
     private function getShopModel(): ShopModel {
         if ($this->shopModel === null) {
             $this->shopModel = new ShopModel($this->database);
         }
         return $this->shopModel;
-    }
-
-    private function getRatingModel(): RatingModel {
-        if ($this->ratingModel === null) {
-            $this->ratingModel = new RatingModel($this->database);
-        }
-        return $this->ratingModel;
     }
 }

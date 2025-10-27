@@ -1,20 +1,42 @@
 <?php
 require_once '../forms/CardForm.php';
+require_once '../forms/RatingForm.php';
 require_once '../base/Item.php';
-require_once '../base/ItemRating.php';
 require_once '../traits/GetButton.php';
 
 abstract class ItemCard {
     use GetButton;
     protected ?CardForm $form = null;
     protected Item $item;
-    protected ItemRating $itemRating;
-    protected string $cardClass,$cardContentClass,$cardActionClass;
+    protected bool $canRate;
+    protected string $cardClass,$cardContentClass,$cardActionClass,$ratingError,$noRatingMsg,$postRating,$postBtnClass,$message;
     
-    public function __construct(Item $item,ItemRating $itemrRating) {
+    public function __construct(Item $item, bool $canRate = false, string $ratingError = '', string $ratingMessage = '') {
         $this->item = $item;
-        $this->itemRating = $itemrRating;
+        $this->canRate = $canRate;
+        $this->ratingError = $ratingError;
+        $this->noRatingMsg = 'Dit product heeft geen rating!';
+        $this->postRating = 'rating';
+        $this->postBtnClass = 'rating-btn';
+        $this->message = $ratingMessage;
         $this->initialize();
+    }
+
+    protected final function renderRating(): void {
+        $this->item->hasRating() 
+            ? HtmlBuilder::showMessage('Rating: ' . $this->item->getRating() . ' (' . $this->item->getRatingCount() . ')')
+            : HtmlBuilder::showMessage($this->noRatingMsg);
+    
+        if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']) {
+            if(!empty($this->message)) {
+                HtmlBuilder::showMessage($this->message);
+            } elseif ($this->canRate) {
+                $ratingForm = new RatingForm($this->item->getId());
+                $ratingForm->render();
+            } elseif (!empty($this->ratingError)) {
+                HtmlBuilder::showMessage($this->ratingError);
+            }
+        }
     }
 
     private function makeCardForm(): void {

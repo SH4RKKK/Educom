@@ -24,11 +24,11 @@ class WebshopCard extends ItemCard {
 
         HtmlBuilder::openDiv( $this->cardContentClass);
         HtmlBuilder::showMessage($this->item->getName().' - €'.number_format($this->item->getPrice(),2,',',''));
+        $this->renderRating();
         HtmlBuilder::closeDiv();
 
         HtmlBuilder::closeLink();
 
-        //Rating render here
         
         HtmlBuilder::openDiv($this->cardActionClass);
         $this->form !== null ? $this->form->render() : $this->renderGetButton();

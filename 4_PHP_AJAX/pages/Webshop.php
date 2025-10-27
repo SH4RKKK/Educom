@@ -6,17 +6,17 @@ require_once '../base/Pagination.php';
 
 class Webshop extends BodyContent {
     private Pagination $pagination;
-    private WebshopCard $card;
 
     private array $products,$productsToShow;
     private int $totalItems,$productPerPage;
-    private string $noProductErrMsg,$errorMessage,$pageClass;
+    private string $noProductErrMsg,$errorMessage,$pageClass,$ratingMessage;
 
-    public function __construct(array $items,int $productPerPage,string $errorMessage = '') {
+    public function __construct(array $items,int $productPerPage,string $errorMessage = '',string $ratingMessage = '') {
         $this->products = $items;
         $this->totalItems = count($items);
         $this->productPerPage = $productPerPage;
         $this->errorMessage = $errorMessage;
+        $this->ratingMessage = $ratingMessage;
         parent::__construct();
     }
     
@@ -47,9 +47,9 @@ class Webshop extends BodyContent {
         }
 
         HtmlBuilder::openDiv($this->pageClass);
-        foreach ($this->productsToShow as $product) {
-            $this->card = new WebshopCard($product);
-            $this->card->render();
+        foreach ($this->productsToShow as $productData) {
+            $card = new WebshopCard($productData['item'],$productData['can_rate'],$productData['rating_error'],$this->ratingMessage);
+            $card->render();
         }
         HtmlBuilder::closeDiv();
 

@@ -7,8 +7,8 @@ class Product extends BodyContent {
     private ?ProductCard $product;
     private string $errProductMsg,$errorMessage;
 
-    public function __construct(?Item $product,string $errorMessage = '') {
-        $product !== null ? $this->product = new ProductCard($product) : $this->product = null;
+    public function __construct(?Item $item, string $errorMessage = '', bool $canRate = false, string $ratingError = '',string $ratingMessage = '') {
+        $item !== null ? $this->product = new ProductCard($item, $canRate, $ratingError, $ratingMessage) : $this->product = null;
         $this->errorMessage = $errorMessage;
         parent::__construct();
     }
