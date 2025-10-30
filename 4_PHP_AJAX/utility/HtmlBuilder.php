@@ -2,10 +2,12 @@
 class HtmlBuilder {
     
     // BASIC HTML ELEMENTS
-    public static function openDiv(string $class = ''): void {
-        echo '<div' . ($class ? ' class="' . self::escape($class) . '"' : '') . '>';
-    }
-    
+public static function openDiv(string $class = '', string $id = ''): void {
+    $attrs = [];
+    if ($class)  $attrs[] = 'class="' . self::escape($class) . '"';
+    if ($id) $attrs[] = 'id="' . self::escape($id) . '"';
+    echo '<div' . ( ! empty($attrs) ? ' ' . implode(' ', $attrs) : '' ) . '>';
+}
     public static function closeDiv(): void {
         echo '</div>';
     }
@@ -55,5 +57,9 @@ class HtmlBuilder {
     // UTIL
     public static function escape(string $text): string {
         return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    }   
+
+    public static function addJavaScript(string $scriptPath,string $scriptType = ''): void {
+        echo '<script src="' . self::escape($scriptPath) . '"' . $scriptType . '></script>';
     }
 }

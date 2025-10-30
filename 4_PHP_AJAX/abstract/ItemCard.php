@@ -9,7 +9,7 @@ abstract class ItemCard {
     protected ?CardForm $form = null;
     protected Item $item;
     protected bool $canRate;
-    protected string $cardClass,$cardContentClass,$cardActionClass,$ratingError,$noRatingMsg,$postRating,$postBtnClass,$message;
+    protected string $cardClass,$cardContentClass,$cardActionClass,/*rating stuff*/$ratingError,$noRatingMsg,$postRating,$postBtnClass,$message,$ratingId;
     
     public function __construct(Item $item, bool $canRate = false, string $ratingError = '', string $ratingMessage = '') {
         $this->item = $item;
@@ -19,10 +19,12 @@ abstract class ItemCard {
         $this->postRating = 'rating';
         $this->postBtnClass = 'rating-btn';
         $this->message = $ratingMessage;
+        $this->ratingId = 'rating';
         $this->initialize();
     }
 
     protected final function renderRating(): void {
+        HtmlBuilder::openDiv('',$this->ratingId);
         $this->item->hasRating() 
             ? HtmlBuilder::showMessage('Rating: ' . $this->item->getRating() . ' (' . $this->item->getRatingCount() . ')')
             : HtmlBuilder::showMessage($this->noRatingMsg);
@@ -37,6 +39,7 @@ abstract class ItemCard {
                 HtmlBuilder::showMessage($this->ratingError);
             }
         }
+        HtmlBuilder::closeDiv();
     }
 
     private function makeCardForm(): void {
